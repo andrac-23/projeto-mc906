@@ -1,0 +1,4 @@
+bbox-visualizer
+opencv-python
+numpy
+matplotlib
