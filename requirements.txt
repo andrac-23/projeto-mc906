@@ -1,0 +1,6 @@
+ultralytics=8.2.8=pyh2965483_0
+ipykernel=6.29.3=pyh3cd1d5f_0
+libopenvino-pytorch-frontend=2024.0.0=h3f3aa29_5
+pytorch=2.3.0=py3.12_0
+torchvision=0.18.0=py312_cpu
+torchinfo=1.8.0=pyhd8ed1ab_0
