@@ -26,7 +26,7 @@ with open(os.path.join(curr_dir, "training", "yoloV5_annotations", "_classes.txt
                 print("Erro ao fazer a pergunta. Tentando novamente em 60s...")
                 print("Erro: {}".format(e))
                 print("Preenchendo os dados até agora...")
-                with open(os.path.join(curr_dir, "training", "yoloV5_annotations", "_classes_traduzidas.txt"), "a") as f:
+                with open(os.path.join(curr_dir, "training", "yoloV5_annotations", "_classes_traduzidas.txt"), "w") as f:
                     for c in classes:
                         f.write(c + "\n")
                 for i in range(60):
