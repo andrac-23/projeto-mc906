@@ -334,3 +334,5 @@ $RECYCLE.BIN/
 
 **/runs
 *.pt
+
+datasets/aicrowd_food_recognition_benchmark_2022

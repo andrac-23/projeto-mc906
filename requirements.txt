@@ -4,3 +4,4 @@ libopenvino-pytorch-frontend=2024.0.0=h3f3aa29_5
 pytorch=2.3.0=py3.12_0
 torchvision=0.18.0=py312_cpu
 torchinfo=1.8.0=pyhd8ed1ab_0
+polars=0.20.25=py312h2d7d7ff_0
