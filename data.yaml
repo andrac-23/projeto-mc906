@@ -1,0 +1,35 @@
+names:
+- Kabayaki sea bream fillet
+- Spam
+- apple -sliced-
+- cabbage
+- coin
+- creamy tofu
+- creamy tofu -without sauce-
+- cucumber
+- egg tofu
+- firm tofu
+- fish cake
+- fried chicken cutlet
+- fried potato
+- grilled pork
+- guava -sliced-
+- mustard greens
+- pig blood curd
+- pig liver
+- pineapple
+- pumpkin
+- red grilled pork
+- soy egg
+- sweet potato leaves
+nc: 23
+roboflow:
+  license: CC BY 4.0
+  project: food-pion4
+  url: https://universe.roboflow.com/school-yrws4/food-pion4/dataset/22
+  version: 22
+  workspace: school-yrws4
+path: C:\Users\Vinip\Documents\YOLO\Food-22
+test: test\images
+train: train\images
+val: valid\images
