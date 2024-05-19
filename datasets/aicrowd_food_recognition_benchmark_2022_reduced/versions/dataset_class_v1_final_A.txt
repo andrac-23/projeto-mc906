@@ -1,0 +1,356 @@
+bread [bread_wholemeal, bread, bread_grain, bread_white, bread_whole_wheat, bread_toast, bread_black, bread_wholemeal_toast, bread_ticino_ch, bread_fruit, bread_rye, white_bread_with_butter_eggs_and_milk, gluten_free_bread, brioche, roll_of_half_white_or_white_flour_with_large_void, braided_white_loaf_ch, lye_pretzel_soft]
+
+croissant [croissant,  croissant_with_chocolate_filling, ham_croissant_ch, roll_with_pieces_of_chocolate]
+
+savoury_pastry_stick
+
+focaccia
+
+wraps [fajita_bread_only, bread_pita, crepe_with_flour_plain, spring_roll_fried]
+
+granola [crunch_muesli, muesli_dry, flakes]
+
+savoury_cracker [crisp_bread, rusk_wholemeal]
+
+biscuit
+
+breadcrumbs [breadcrumbs_unspiced]
+
+croutons
+
+tiramisu
+
+chocolate_cookies [cookies, chocolate_cookies]
+
+jam
+
+water
+
+glucose_drink_50g
+
+juice [water_with_lemon_juice, juice_apple, juice_orange, juice]
+
+soda [soft_drink_with_a_taste, cola_based_drink]
+
+smoothie
+
+milk [mixed_milk_beverage]
+
+kefir_drink
+
+beer
+
+aperitif_with_alcohol_n_s_aperol_spritz
+
+tea [tea, ice_tea_on_black_tea_basis]
+
+coffee [coffee, white_coffee, espresso, cappuccino, latte_macchiato, ristretto_with_caffeine]
+
+yogurt [yogurt, curds_natural]
+
+tzatziki
+
+wine_red
+
+wine_white [wine_white, wine_rose]
+
+banana
+
+cake_chocolate
+
+banana_cake
+
+cheesecake
+
+pancake
+
+cake_lemon
+
+muffin
+
+brownie
+
+fruit_tart [pie_plum_baked_with_cake_dough, apple_pie, pie_apricot, tart_n_s, fruit_tart]
+
+salt_cake_w_vegetables [salt_cake_ch_vegetables_filled, quiche]
+
+omelette [omelette_with_flour_thick_crepe_plain]
+
+cheese [hard_cheese, cheese_n_s, cheese_for_raclette_ch, emmental_cheese_ch, semi_hard_cheese, blue_mould_cheese, parmesan, gruyere_ch, mozzarella]
+
+white_cheese [soft_cheese, cottage_cheese, tomme_ch, feta, tofu, halloumi]
+
+cream_cheese [fresh_cheese_n_s, cream_cheese_n_s, goat_cheese_soft]
+
+chocolate [dark_chocolate, hazelnut_chocolate_spread_nutella_ovomaltine_caotina, chocolate_milk, praline_n_s, chocolate_n_s, chocolate_egg_small]
+
+chocolate_mousse
+
+falafel_balls
+
+sausage [sausage, cervelat_ch]
+
+ham [ham_raw, ham_n_s]
+
+bacon
+
+salami [salami_ch]
+
+beef [beef_n_s]
+
+meatloaf [meatloaf_ch]
+
+meat [meat_n_s, pork_n_s]
+
+meat_terrine_pate
+
+dried_meat [dried_meat_n_s]
+
+cordon_bleu
+
+chicken_breast
+
+chicken_leg
+
+chicken [chicken, chicken_cut_into_stripes_only_meat]
+
+fish [fish_n_s]
+
+tuna [tuna, tuna_in_oil_drained]
+
+salmon [salmon, salmon_smoked]
+
+shrimp [shrimp_prawn]
+
+pizza [pizza_with_ham_with_mushrooms_baked, pizza_with_ham_baked, pizza_margherita_baked, pizza_with_vegetables_baked, french_pizza_from_alsace_baked]
+
+nuggets
+
+crisps [crisps_ch, corn_crisps]
+
+french_fries [chips_french_fries, country_fries]
+
+hamburger [hamburger, veggie_burger]
+
+sushi
+
+ice_cream [ice_cream_n_s]
+
+fondue
+
+salad [salad_lambs_ear, salad_leaf_salad_green, mixed_salad_chopped_without_sauce, greek_salad, salad_rocket]
+
+caprese_salad_tomato_mozzarella
+
+tomato [tomato, sun_dried_tomatoe]
+
+rice [rice, rice_wild, rice_whole_grain, risotto]
+
+grain_salad [couscous, taboule_prepared_with_couscous, bulgur, quinoa]
+
+pasta [pasta_hornli_ch, pasta_n_s, pasta_noodles, pasta_spaghetti, pasta_penne, pasta_twist, pasta_linguini_parpadelle_tagliatelle, pasta_in_conch_form, pasta_in_butterfly_form_farfalle, rice_noodles_vermicelli, spaetzle, pasta_wholemeal]
+
+potato_gnocchi
+
+lentils [lentil_n_s, soup_of_lentils_dahl_dhal, lentils_green_du_puy_du_berry]
+
+chickpeas
+
+egg
+
+egg_scrambled
+
+potato [potato, potato_salad, baked_potato, potatoes_au_gratin_dauphinois_prepared]
+
+mashed_potatoes [mashed_potatoes_prepared_with_full_fat_milk_with_butter, grits_polenta_maize_flour]
+
+rosti [rosti_n_s]
+
+sweet_potato
+
+lasagna [lasagne_vegetable_prepared, lasagne_meat_prepared]
+
+soup [soup, soup_pumpkin, bouillon]
+
+curry [chicken_curry_cream_coconut_milk_curry_spices_paste, curry_vegetarian, sauce_curry]
+
+chili_con_carne [chili_con_carne_prepared]
+
+olives [green_olives, black_olives]
+
+capers
+
+beans [beans_kidney]
+
+green_bean [french_beans, green_bean_steamed_without_addition_of_salt]
+
+seeds [sunflower_seeds, sesame_seeds, seeds_n_s, pumpkin_seeds, mixed_seeds_n_s]
+
+leek [leek, spring_onion_scallion]
+
+carrot [carrot, vegetable_mix_peas_and_carrots]
+
+peas
+
+cucumber [cucumber, cucumber_pickled_ch]
+
+beetroot [beetroot-steamed-without-addition-of-salt, beetroot_raw]
+
+mushroom
+
+cabbage [white_cabbage, chinese_cabbage, red_cabbage_raw, sauerkraut, coleslaw_chopped_without_sauce]
+
+onion [onion, pearl_onion]
+
+garlic
+
+avocado
+
+broccoli
+
+apple
+
+pineapple
+
+pear
+
+orange [mandarine, orange]
+
+kiwi
+
+peach [peach, nectarine, apricots]
+
+zucchini
+
+alfafa_sprouts [alfa_sprouts, shoots_n_s]
+
+brussel_sprouts
+
+spinach [spinach_raw, leaf_spinach, spinach]
+
+swiss_chard
+
+mango
+
+kaki
+
+grapes
+
+corn [corn, sweet_corn]
+
+pumpkin
+
+coconut
+
+lemon
+
+strawberries
+
+cherries
+
+watermelon_fresh
+
+asparagus [asparagus, white_asparagus]
+
+berries [berries_n_s, blueberries, raspberries]
+
+figs
+
+pomegranate
+
+grapefruit [grapefruit_pomelo]
+
+plum [plums, damson_plum]
+
+eggplant [aubergine_eggplant]
+
+red_radish
+
+artichoke
+
+nuts [cashew_nut, almonds, chestnuts_ch, peanut, hazelnut, nuts, pistachio, pine_nuts, walnut]
+
+mixed_vegetables [mixed_vegetables, ratatouille]
+
+nut_butter [peanut_butter, butter_spread_puree_almond]
+
+butter
+
+tomato_sauce [tomato_sauce, ketchup]
+
+porridge [porridge_prepared_with_partially_skimmed_milk, birchermuesli_prepared_no_sugar_added]
+
+salad_dressing [oil_vinegar_salad_dressing, french_salad_dressing, balsamic_salad_dressing, salad_dressing]
+
+sauce_pesto
+
+mustard
+
+mayonnaise
+
+shoyu [sauce_soya]
+
+guacamole
+
+sauce [sauce, sauce_cream, tartar_sauce, sauce_savoury_n_s, sauce_mushroom, sauce_cocktail, applesauce, cream_double_cream_heavy_cream_45]
+
+hummus
+
+bolognaise_sauce
+
+herbs [parsley, basil]
+
+bell_pepper [bell_pepper_red_stewed, bell_pepper_red_raw]
+
+honey
+
+dried_fruit [raisins_dried, dates]
+
+fruit_mixed
+
+cauliflower
+
+kolhrabi
+
+fennel
+
+witloof_chicory
+
+fruit_coulis
+
+vegetable_baked [vegetable_au_gratin_baked]
+
+melon [sugar_melon_galia_honeydew_cantaloupe]
+
+celeriac
+
+=======================================
+
+FORMATO: classe_nova [a, b, c, ...]
+-> opcional: lista que contém as classes antigas usadas na composição da classe nova
+
+TOTAL: 163 classes =>
+
+[bread, croissant, savoury_pastry_stick, focaccia, wraps, granola, savoury_cracker, biscuit, breadcrumbs, croutons, tiramisu, chocolate_cookies, jam, water, glucose_drink_50g, juice, soda, smoothie, milk, kefir_drink, beer, aperitif_with_alcohol_n_s_aperol_spritz, tea, coffee, yogurt, tzatziki, wine_red, wine_white, banana, cake_chocolate, banana_cake, cheesecake, pancake, cake_lemon, muffin, brownie, fruit_tart, salt_cake_w_vegetables, omelette, cheese, white_cheese, cream_cheese, chocolate, chocolate_mousse, falafel_balls, sausage, ham, bacon, salami, beef, meatloaf, meat, meat_terrine_pate, dried_meat, cordon_bleu, chicken_breast, chicken_leg, chicken, fish, tuna, salmon, shrimp, pizza, nuggets, crisps, french_fries, hamburger, sushi, ice_cream, fondue, salad, caprese_salad_tomato_mozzarella, tomato, rice, grain_salad, pasta, potato_gnocchi, lentils, chickpeas, egg, egg_scrambled, potato, mashed_potatoes, rosti, sweet_potato, lasagna, soup, curry, chili_con_carne, olives, capers, beans, green_bean, seeds, leek, carrot, peas, cucumber, beetroot, mushroom, cabbage, onion, garlic, avocado, broccoli, apple, pineapple, pear, orange, kiwi, peach, zucchini, alfafa_sprouts, brussel_sprouts, spinach, swiss_chard, mango, kaki, grapes, corn, pumpkin, coconut, lemon, strawberries, cherries, watermelon_fresh, asparagus, berries, figs, pomegranate, grapefruit, plum, eggplant, red_radish, artichoke, nuts, mixed_vegetables, nut_butter, butter, tomato_sauce, porridge, salad_dressing, sauce_pesto, mustard, mayonnaise, shoyu, guacamole, sauce, hummus, bolognaise_sauce, herbs, bell_pepper, honey, dried_fruit, fruit_mixed, cauliflower, kolhrabi, fennel, witloof_chicory, fruit_coulis, vegetable_baked, melon, celeriac]
+
+=======================================
+
+COMENTÁRIOS:
+
+(*) glucose_drink_50g - confuso: parece água, água com limão mas na verdade é um produto que medicos usam pra testes de diabetes (significa que nunca queremos detectar ele mesmo, acho que vai confundir nosso modelo)
+
+(*) liquidos em geral: acho que alguns são muito parecidos e talvez confundam. talvez valha a pena nos limitarmos à apenas alguns
+
+(*liquido) wine_white - talvez confunda. talvez deixar só o wine_red
+
+(*liquido) kefir_drink - parece suco/agua. pode confundir, acho que não vamos usar essa classe
+
+(*liquido) aperitif_with_alcohol_n_s_aperol_spritz - talvez confunda - poucas fotos
+
+(*) sauces em geral: também achei muito parecidos, e algumas categorias são confusas também, as fotos estao anotadas com muito afastamento, parecendo que o prato é o sauce. tentei separar alguns mais importantes tipo mostarda, maionese, guacamole e bolonhesa (fotos de macarrão à bolonhesa)
+
+(*sauce) cream_double_cream_heavy_cream_45 - muito genérico: não sei do que se trata (várias fotos de comidas salgadas e várias fotos de chantilly)
+
+(*) rosti_n_s - significa "torta de batata ralada"
+
+(*) chocolate_egg_small (e alguns outros) - as vezes aparecem fotos de embalagens. acho que não vai ter tanto problema, mas é um ruido
