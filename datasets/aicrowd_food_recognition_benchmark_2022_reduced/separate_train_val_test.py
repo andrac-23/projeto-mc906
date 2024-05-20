@@ -1,4 +1,3 @@
-import supervision as sv
 import os
 import sys
 import yaml
