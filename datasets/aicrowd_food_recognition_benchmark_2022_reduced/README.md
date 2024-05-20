@@ -4,7 +4,7 @@
 
 1. Baixar [[Round 2] public_training_set_release_2.1.tar.gz (3.1G)](https://www.aicrowd.com/challenges/food-recognition-benchmark-2022/dataset_files) (entrar pelo Google se não tiver conta)
 
-2. Clonar o repositório e copiar o diretório atual (`Scripts`) para algum novo diretório do computador
+2. Clonar o repositório e copiar o diretório atual (`aicrowd_food_recognition_benchmark_2022_reduced`) para algum novo diretório do computador
 
 3. Guardar o `.zip` baixado no diretório copiado, pois será necessário extrai-lo sempre que fizermos uma versão
 
