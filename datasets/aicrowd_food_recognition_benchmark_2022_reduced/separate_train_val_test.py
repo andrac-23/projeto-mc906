@@ -83,7 +83,7 @@ def separate_train_val_test(version, letter, percent_train, percent_val, percent
 
 if __name__ == "__main__":
     if len(sys.argv) != 6:
-        print("Uso incorreto, esperado: python3 separate_train_val_test.py <versao> <letra>")
+	print("Uso incorreto, esperado: python3 separate_train_val_test.py <versao> <letra> <%_train> <%_val> <%_test>")
         sys.exit(1)
     versao, letra = int(sys.argv[1]), sys.argv[2].upper()
     p_train, p_val, p_test = int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])
