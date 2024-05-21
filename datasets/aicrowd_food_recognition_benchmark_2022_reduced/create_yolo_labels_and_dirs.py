@@ -66,6 +66,7 @@ def create_yolo_dataset_files_and_annotations(version, letter):
 
     # Criação das anotações YOLO
     categories, curr_annotation = {}, 0
+    category_instance_count = {}
     for annotation in dataset_json["annotations"]:
         img_filename = str(annotation["image_id"]).zfill(6) + ".txt"
         img_id = annotation["image_id"]
@@ -78,6 +79,12 @@ def create_yolo_dataset_files_and_annotations(version, letter):
         if category_name not in categories:
             categories[category_name] = len(categories)
         category_yolo_id = categories[category_name]
+
+        # Obter a contagem de instâncias da categoria
+        if category_yolo_id not in category_instance_count:
+            category_instance_count[category_yolo_id] = 0
+        category_instance_count[category_yolo_id] += len(annotation["segmentation"])
+
         # Obter a bounding box a partir da segmentação (caixas vieram erradas/diferentes no annotations original) e escrever na label
         for segmentation in annotation["segmentation"]:
             bbox = bbox_from_seglist(segmentation)
@@ -87,6 +94,11 @@ def create_yolo_dataset_files_and_annotations(version, letter):
         # Imprimir progresso
         curr_annotation += 1
         sys.stdout.write("\rProgresso atual: {:.2f}%".format(100*curr_annotation/len(dataset_json["annotations"])))
+
+    # Exportar class instance count
+    with open(os.path.join(curr_dir, "v{}".format(version), "v{}_{}".format(version, letter), "v{}_{}_class_instance_count.txt".format(version, letter)), "w") as f:
+        for category_yolo_id, count in category_instance_count.items():
+            f.write("{}: {}\n".format(category_yolo_id, count))
 
     print("\nAnotações YOLO criadas com sucesso!")
 
