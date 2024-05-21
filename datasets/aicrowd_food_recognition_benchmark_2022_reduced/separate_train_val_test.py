@@ -2,8 +2,58 @@ import os
 import sys
 import yaml
 import random
+import shutil
 
 def separate_train_val_test(version, letter, percent_train, percent_val, percent_test):
+    percent_train, percent_val, percent_test = percent_train/100, percent_val/100, percent_test/100
+
+    curr_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Dicionario {classe: [total de instancias, instancias utilizadas]}
+    class_instance_count_path = curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_class_instance_count.txt".format(version, letter)
+    class_instance_count = {}
+    with open(class_instance_count_path, "r") as file:
+        for line in file:
+            class_id, count = line.split(":")
+            class_instance_count[int(class_id)] = [int(count), 0]
+
+    annotations_directory_path= curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_annotations".format(version, letter)
+    annotations = [filename[:-4] for filename in os.listdir(annotations_directory_path)]
+    # Embaralhar as anotações
+    random.shuffle(annotations)
+
+    curr_annotation = 1
+    for annotation in annotations:
+        with open(annotations_directory_path + "/" + annotation + ".txt", "r") as file:
+            for line in file:
+                class_id = int(line.split()[0])
+                class_instance_count[class_id][1] += 1
+                # se a classe tiver sido utilizada menos de percent_train% das instâncias, adicionar a train
+                # se a classe já tiver sido utilizada em mais de percent_train% das instâncias, adicionar a val.
+                # se já tiver sido utilizada em mais de percent_train + percent_val% das instâncias, adicionar a test
+                if class_instance_count[class_id][1] <= percent_train * class_instance_count[class_id][0]:
+                    with open(curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/train/labels/" + annotation + ".txt", "a") as f:
+                        f.write(line) # adiciona a linha da anotação ao arquivo de labels
+                    if not os.path.exists(curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/train/images/" + annotation + ".jpg"):
+                        # copia a imagem para a pasta de imagens de treino se ainda não estiver lá
+                        shutil.copyfile(curr_path + "/images/" + annotation + ".jpg", curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/train/images/" + annotation + ".jpg")
+                elif class_instance_count[class_id][1] <= (percent_train + percent_val) * class_instance_count[class_id][0]:
+                    with open(curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/val/labels/" + annotation + ".txt", "a") as f:
+                        f.write(line)
+                    if not os.path.exists(curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/val/images/" + annotation + ".jpg"):
+                        shutil.copyfile(curr_path + "/images/" + annotation + ".jpg", curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/val/images/" + annotation + ".jpg")
+                else:
+                    with open(curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/test/labels/" + annotation + ".txt", "a") as f:
+                        f.write(line)
+                    if not os.path.exists(curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/test/images/" + annotation + ".jpg"):
+                        shutil.copyfile(curr_path + "/images/" + annotation + ".jpg", curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_files".format(version, letter) + "/test/images/" + annotation + ".jpg")
+        print("Progresso atual: {:.2f}%".format(100*curr_annotation/len(annotations)), end="\r")
+        curr_annotation += 1
+
+    print("\nSeparação realizada com sucesso\nFim do script")
+    return
+
+def old_separate_train_val_test(version, letter, percent_train, percent_val, percent_test):
     curr_path = os.path.dirname(os.path.abspath(__file__))
     annotations_directory_path= curr_path + "/v{}".format(version) + "/v{}_{}".format(version, letter) + "/v{}_{}_yoloV8_annotations".format(version, letter)
 
@@ -82,7 +132,7 @@ def separate_train_val_test(version, letter, percent_train, percent_val, percent
 
 if __name__ == "__main__":
     if len(sys.argv) != 6:
-	print("Uso incorreto, esperado: python3 separate_train_val_test.py <versao> <letra> <%_train> <%_val> <%_test>")
+        print("Uso incorreto, esperado: python3 separate_train_val_test.py <versao> <letra> <%_train> <%_val> <%_test>")
         sys.exit(1)
     versao, letra = int(sys.argv[1]), sys.argv[2].upper()
     p_train, p_val, p_test = int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])
