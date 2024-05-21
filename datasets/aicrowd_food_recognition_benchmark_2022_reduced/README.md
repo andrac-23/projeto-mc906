@@ -6,15 +6,11 @@
 
 2. Clonar o repositório e copiar o diretório atual (`aicrowd_food_recognition_benchmark_2022_reduced`) para algum novo diretório do computador
 
-3. Guardar o `.zip` baixado no diretório copiado, pois será necessário extrai-lo sempre que fizermos uma versão
+3. Extrair os arquivos do `.zip` no diretório atual
 
-4. Extrair os arquivos do `.zip` no diretório atual
+4. Renomear o arquivo `annotations.json` extraído para `v0_O_annotations.json`, e movê-lo para a pasta `v0/v0_O`
 
-5. **Primeira extração do `.zip` apenas:** Renomear o arquivo `annotations.json` para `v0_O_annotations.json` e movê-lo para a pasta `v0/v0_O`
-
-6. **Demais extrações do `.zip`:** Apagar o annotations.json extraído
-
-7. Abrir o terminal no diretório atual e executar o comando `pip install -r requirements.txt`
+5. Abrir o terminal no diretório atual e executar o comando `pip install -r requirements.txt`
 
  - ### Etapa 1: Criação dos novos arquivos annotations.json:
  > **Essa etapa só precisa ser executada uma vez**
@@ -31,9 +27,9 @@
 
 2. Executar o comando `python3 separate_train_val_test.py <versao> <letra> <%_treino> <%_validacao> <%_teste>` para criar a separação do dataset em treino/validação/teste usando as porcentagens dadas (pode demorar um pouco). Ex: `python3 separate_train_val_test.py 1 A 80 10 10`.
 
-3. Agora o diretório `v{}/v{}\_{}/v{}_{}_yoloV8files` está pronto para ser treinado pelo YOLOv8. As imagens e as labels foram movidas para as respectivas pastas (imagens que sobraram na pasta images podem ser apagadas - não possuem anotações). É possível criar um .zip desse diretório e subi-lo no Colab, por exemplo.
+3. Agora o diretório `v{}/v{}\_{}/v{}_{}_yoloV8files` está pronto para ser treinado pelo YOLOv8. As imagens e as labels foram copiadas para as respectivas pastas. É possível criar um .zip desse diretório e subi-lo no Colab, por exemplo.
 
-4. Para gerar esses arquivos para outras versões do dataset, a pasta images deve ser apagada e o .zip baixado deve ser extraído novamente. A etapa 1 não precisa ser executada novamente.
+4. Para gerar esses arquivos para outras versões do dataset, basta escolher a nova versão e letra. As etapas 0 e 1 não precisam ser executadas novamente.
 
 - ### Etapa 3: K-fold
 > TODO
