@@ -11,6 +11,7 @@ def create_loss_plots(table, plots_path):
 
     """
     fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(15, 5.5))
+    fig.suptitle("Perdas do modelo no treino e validação por época")
 
     # plot graph of the train/box_loss
     train_box_loss = table["train/box_loss"]
