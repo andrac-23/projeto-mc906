@@ -10,6 +10,8 @@ def create_loss_plots(table, plots_path):
     param plots_path: Caminho para salvar o gráfico
 
     """
+    plt.ioff()
+
     fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(15, 5.5))
     fig.suptitle("Perdas do modelo no treino e validação por época")
 
