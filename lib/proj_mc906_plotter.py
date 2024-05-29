@@ -12,7 +12,7 @@ def create_loss_plots(table, plots_path, display=False):
     """
     plt.ioff()
 
-    fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(15, 5.5))
+    fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(15, 6.65))
     fig.suptitle("Perdas do modelo no treino e validação por época")
 
     def plot_loss_graph(ax, train_loss, val_loss, loss_name):
