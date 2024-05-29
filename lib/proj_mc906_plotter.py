@@ -12,7 +12,7 @@ def create_loss_plots(table, plots_path, display=False):
     """
     plt.ioff()
 
-    fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(10, 6.65))
+    fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(14, 6.65))
     fig.suptitle("Perdas do modelo no treino e validação por época")
 
     def plot_loss_graph(ax, train_loss, val_loss, loss_name):
@@ -63,7 +63,7 @@ def plot_graph(ax, metric_column, metric_name):
 def create_metrics_plots(table, plots_path, display=False):
     plt.ioff()
 
-    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 6.65))
+    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(14, 6.65))
     fig.suptitle("Métricas gerais do modelo por época (validação)")
 
     plot_graph(axs[0, 0], table["metrics/precision(B)"], "metrics/precision(B)")
