@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def create_loss_plots(table, plots_path):
+def create_loss_plots(table, plots_path, display=False):
     """
     Cria gráfico com os valores de loss do modelo por época por treino e validação
 
@@ -15,84 +15,73 @@ def create_loss_plots(table, plots_path):
     fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(15, 5.5))
     fig.suptitle("Perdas do modelo no treino e validação por época")
 
-    # plot graph of the train/box_loss
-    train_box_loss = table["train/box_loss"]
-    axs[0].plot(range(1, len(train_box_loss) + 1), train_box_loss, zorder=3, label="train/box_loss")
-    axs[0].scatter(range(1, len(train_box_loss) + 1), train_box_loss, c='royalblue', zorder=4)
+    def plot_loss_graph(ax, train_loss, val_loss, loss_name):
+        ax.plot(range(1, len(train_loss) + 1), train_loss, zorder=3, label=f"train/{loss_name}")
+        ax.scatter(range(1, len(train_loss) + 1), train_loss, c='royalblue', zorder=4)
+        ax.plot(range(1, len(val_loss) + 1), val_loss, zorder=3, label=f"val/{loss_name}", c='red')
+        ax.scatter(range(1, len(val_loss) + 1), val_loss, c='red', zorder=4)
 
-    # plot graph of the validation/box_loss
-    val_box_loss = table["val/box_loss"]
-    axs[0].plot(range(1, len(val_box_loss) + 1), val_box_loss, zorder=3, label="val/box_loss", c='red')
-    axs[0].scatter(range(1, len(val_box_loss) + 1), val_box_loss, c='red', zorder=4)
+        min_train_loss = train_loss.min()
+        max_train_loss = train_loss.max()
+        min_val_loss = val_loss.min()
+        max_val_loss = val_loss.max()
+        min_val = min(min_train_loss, min_val_loss)
+        max_val = max(max_train_loss, max_val_loss)
+        ax.set_yticks(np.arange(min_val * 0.95, max_val * 1.05, (max_val - min_val) / 15))
 
-    # ticks
-    min_train_box_loss = table["train/box_loss"].min()
-    max_train_box_loss = table["train/box_loss"].max()
-    min_val_box_loss = table["val/box_loss"].min()
-    max_val_box_loss = table["val/box_loss"].max()
-    min_val = min(min_train_box_loss, min_val_box_loss)
-    max_val = max(max_train_box_loss, max_val_box_loss)
-    axs[0].set_yticks(np.arange(min_val * 0.95, max_val * 1.05, (max_val - min_val) / 15))
+        ax.grid(zorder=0, alpha=0.55)
+        ax.legend(loc='upper right')
+        ax.set_xlabel("epochs")
+        ax.set_ylabel(loss_name)
+        ax.set_title(f"{loss_name} X epochs")
 
-    axs[0].grid(zorder=0, alpha=0.55)
-    axs[0].legend(loc='upper right')
-    axs[0].set_xlabel("epochs")
-    axs[0].set_ylabel("box_loss")
-    axs[0].set_title("box_loss X epochs")
-
-    # plot graph of the train/cls_loss
-    train_cls_loss = table["train/cls_loss"]
-    axs[1].plot(range(1, len(train_cls_loss) + 1), train_cls_loss, zorder=3, label="train/cls_loss")
-    axs[1].scatter(range(1, len(train_cls_loss) + 1), train_cls_loss, c='royalblue', zorder=4)
-
-    # plot graph of the validation/cls_loss
-    val_cls_loss = table["val/cls_loss"]
-    axs[1].plot(range(1, len(val_cls_loss) + 1), val_cls_loss, zorder=3, label="val/cls_loss", c='red')
-    axs[1].scatter(range(1, len(val_cls_loss) + 1), val_cls_loss, c='red', zorder=4)
-
-    # ticks
-    min_train_cls_loss = table["train/cls_loss"].min()
-    max_train_cls_loss = table["train/cls_loss"].max()
-    min_val_cls_loss = table["val/cls_loss"].min()
-    max_val_cls_loss = table["val/cls_loss"].max()
-    min_val = min(min_train_cls_loss, min_val_cls_loss)
-    max_val = max(max_train_cls_loss, max_val_cls_loss)
-    axs[1].set_yticks(np.arange(min_val * 0.95, max_val * 1.05, (max_val - min_val) / 15))
-
-    axs[1].grid(zorder=0, alpha=0.55)
-    axs[1].legend(loc='upper right')
-    axs[1].set_xlabel("epochs")
-    axs[1].set_ylabel("cls_loss")
-    axs[1].set_title("cls_loss X epochs")
-
-    # plot graph of the train/dfl_loss
-    train_dfl_loss = table["train/dfl_loss"]
-    axs[2].plot(range(1, len(train_dfl_loss) + 1), train_dfl_loss, zorder=3, label="train/dfl_loss")
-    axs[2].scatter(range(1, len(train_dfl_loss) + 1), train_dfl_loss, c='royalblue', zorder=4)
-
-    # plot graph of the validation/cls_loss
-    val_dfl_loss = table["val/dfl_loss"]
-    axs[2].plot(range(1, len(val_dfl_loss) + 1), val_dfl_loss, zorder=3, label="val/dfl_loss", c='red')
-    axs[2].scatter(range(1, len(val_dfl_loss) + 1), val_dfl_loss, c='red', zorder=4)
-
-    # ticks
-    min_train_dfl_loss = table["train/dfl_loss"].min()
-    max_train_dfl_loss = table["train/dfl_loss"].max()
-    min_val_dfl_loss = table["val/dfl_loss"].min()
-    max_val_dfl_loss = table["val/dfl_loss"].max()
-    min_val = min(min_train_dfl_loss, min_val_dfl_loss)
-    max_val = max(max_train_dfl_loss, max_val_dfl_loss)
-    axs[2].set_yticks(np.arange(min_val * 0.95, max_val * 1.05, (max_val - min_val) / 15))
-
-    axs[2].grid(zorder=0, alpha=0.55)
-    axs[2].legend(loc='upper right')
-    axs[2].set_xlabel("epochs")
-    axs[2].set_ylabel("dfl_loss")
-    axs[2].set_title("dfl_loss X epochs")
+    plot_loss_graph(axs[0], table["train/box_loss"], table["val/box_loss"], "box_loss")
+    plot_loss_graph(axs[1], table["train/cls_loss"], table["val/cls_loss"], "cls_loss")
+    plot_loss_graph(axs[2], table["train/dfl_loss"], table["val/dfl_loss"], "dfl_loss")
 
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.35)
-    plt.savefig(plots_path)
+    if display:
+        plt.show()
+    else:
+        plt.savefig(plots_path)
+
+def plot_graph(ax, metric_column, metric_name):
+    ax.plot(range(1, len(metric_column) + 1), metric_column, zorder=3, label=metric_name)
+    ax.scatter(range(1, len(metric_column) + 1), metric_column, c="royalblue", zorder=4)
+
+    min_metric = metric_column.min()
+    max_metric = metric_column.max()
+    ax.set_yticks(np.arange(min_metric * 0.95, max_metric * 1.05, (max_metric - min_metric) / 15))
+
+    ax.grid(zorder=0, alpha=0.55)
+    ax.legend(loc='upper right')
+    ax.set_xlabel("epochs")
+    ax.set_ylabel(metric_name)
+    ax.set_title(f"{metric_name} X epochs")
+
+def create_metrics_plots(table, plots_path, display=False):
+    plt.ioff()
+
+    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 8.65))
+    fig.suptitle("Métricas gerais do modelo por época (validação)")
+
+    plot_graph(axs[0, 0], table["metrics/precision(B)"], "metrics/precision(B)")
+    plot_graph(axs[0, 1], table["metrics/recall(B)"], "metrics/recall(B)")
+    plot_graph(axs[1, 0], table["metrics/mAP50(B)"], "metrics/mAP50(B)")
+    plot_graph(axs[1, 1], table["metrics/mAP50-95(B)"], "metrics/mAP50-95(B)")
+
+    plt.tight_layout()
+    plt.subplots_adjust(wspace=0.35)
+
+    if display:
+        plt.show()
+    else:
+        plt.savefig(plots_path)
 
 if __name__ == '__main__':
-    print("Esse script não deve ser executado diretamente.")
+    results_csv_path = r"C:\Users\User\Desktop\v2_P\results.csv"
+    table = pd.read_csv(results_csv_path)
+    table.columns = table.columns.str.strip()
+    create_loss_plots(table, "plots.png", display=True)
+    create_metrics_plots(table, "plots.png", display=True)
