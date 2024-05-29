@@ -52,7 +52,7 @@ def plot_graph(ax, metric_column, metric_name):
 
     min_metric = metric_column.min()
     max_metric = metric_column.max()
-    ax.set_yticks(np.arange(min_metric * 0.95, max_metric * 1.05, (max_metric - min_metric) / 15))
+    ax.set_yticks(np.arange(min_metric * 0.95, max_metric * 1.05, (max_metric - min_metric) / 11))
 
     ax.grid(zorder=0, alpha=0.55)
     ax.legend(loc='upper right')
@@ -63,7 +63,7 @@ def plot_graph(ax, metric_column, metric_name):
 def create_metrics_plots(table, plots_path, display=False):
     plt.ioff()
 
-    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 8.65))
+    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 7.65))
     fig.suptitle("Métricas gerais do modelo por época (validação)")
 
     plot_graph(axs[0, 0], table["metrics/precision(B)"], "metrics/precision(B)")
@@ -83,5 +83,5 @@ if __name__ == '__main__':
     results_csv_path = r"C:\Users\User\Desktop\v2_P\results.csv"
     table = pd.read_csv(results_csv_path)
     table.columns = table.columns.str.strip()
-    create_loss_plots(table, "plots.png", display=True)
+    #create_loss_plots(table, "plots.png", display=True)
     create_metrics_plots(table, "plots.png", display=True)
