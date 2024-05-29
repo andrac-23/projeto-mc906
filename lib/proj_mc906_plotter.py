@@ -55,7 +55,7 @@ def plot_graph(ax, metric_column, metric_name):
     ax.set_yticks(np.arange(min_metric * 0.95, max_metric * 1.05, (max_metric - min_metric) / 11))
 
     ax.grid(zorder=0, alpha=0.55)
-    ax.legend(loc='upper right')
+    ax.legend(loc='upper left')
     ax.set_xlabel("epochs")
     ax.set_ylabel(metric_name)
     ax.set_title(f"{metric_name} X epochs")
@@ -63,7 +63,7 @@ def plot_graph(ax, metric_column, metric_name):
 def create_metrics_plots(table, plots_path, display=False):
     plt.ioff()
 
-    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 7.65))
+    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 6.65))
     fig.suptitle("Métricas gerais do modelo por época (validação)")
 
     plot_graph(axs[0, 0], table["metrics/precision(B)"], "metrics/precision(B)")
