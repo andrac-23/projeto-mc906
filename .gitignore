@@ -333,6 +333,6 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,python,windows,linux,images
 
 **/runs
-*.pt
+# *.pt
 
 datasets/aicrowd_food_recognition_benchmark_2022
