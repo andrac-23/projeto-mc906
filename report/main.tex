@@ -85,7 +85,7 @@ Inicialmente, ao enfrentar um problema de reconhecimento de imagens, é natural 
 
 Outra consideração importante foi a decisão de utilizar uma rede pré-treinada em vez de treinar uma rede do zero. Redes pré-treinadas oferecem a vantagem de já terem aprendido uma vasta gama de características de imagens através de um extenso treinamento em grandes datasets. Isso não só economiza tempo e recursos computacionais significativos, mas também proporciona uma base sólida que pode ser ajustada para atender às necessidades específicas do nosso projeto através de técnicas como \textit{fine-tuning}. Treinar uma rede do zero, por outro lado, requer um volume enorme de dados e poder computacional, além de um tempo considerável para alcançar um nível de precisão comparável ao de uma rede pré-treinada. Itens inacessíveis para o nosso escopo.
 
-Entre as diversas arquiteturas de CNNs disponíveis, o modelo YOLO (\textit{You Only Look Once}) \cite{redmon2016you} destacou-se por várias razões. Primeiramente, o YOLO é amplamente reconhecido e utilizado tanto por empresas quanto por grupos de pesquisa devido à sua capacidade de realizar detecções de objetos em tempo real. Essa característica é particularmente vantajosa para aplicações que exigem processamento rápido e eficiente, como sistemas de vigilância, veículos autônomos e dispositivos móveis. A arquitetura do YOLO permite a detecção e a classificação de objetos em uma única etapa, ao contrário de outros métodos que dividem o processo em várias fases, o que resulta em uma velocidade significativamente maior.
+Entre as diversas arquiteturas de CNNs disponíveis, o modelo YOLO (\textit{You Only Look Once}) \cite{redmon2016you} destacou-se por várias razões. Primeiramente, é um modelo open-source. Ainda, o YOLO é amplamente reconhecido e utilizado tanto por empresas quanto por grupos de pesquisa devido à sua capacidade de realizar detecções de objetos em tempo real. Essa característica é particularmente vantajosa para aplicações que exigem processamento rápido e eficiente, como sistemas de vigilância, veículos autônomos e dispositivos móveis. A arquitetura do YOLO permite a detecção e a classificação de objetos em uma única etapa, ao contrário de outros métodos que dividem o processo em várias fases, o que resulta em uma velocidade significativamente maior.
 
 Além disso, o YOLO foi treinado em datasets abrangentes e diversificados, como o COCO (\textit{Common Objects in Context}) \cite{lin2014microsoft}, que contém uma vasta gama de objetos em diferentes contextos e condições. Isso garante que o modelo tenha uma boa generalização e desempenho em diferentes cenários do mundo real. A comunidade de pesquisa também tem contribuído continuamente para aprimorar e otimizar o YOLO, resultando em versões mais eficientes e precisas do modelo.
 
@@ -95,11 +95,32 @@ Em comparação com versões mais recentes, YOLOv9 e YOLOv10 (ambas propostas em
 
 \subsection{Dados}
 \label{sec:data}
-Outro pilar \lipsum[1].
+Outro pilar para a nossa aplicação são os dados usados no treinamento. Os dados desempenham um papel crucial no aprendizado de máquina, pois a qualidade e a relevância dos dados utilizados diretamente influenciam o desempenho e a precisão dos modelos. O princípio "garbage in, garbage out," cujo registro mais antigo data de 1957 nos trabalhos do especialista em computadores do exército americano William D. Mellin, destaca que resultados precisos e confiáveis só podem ser obtidos a partir de dados de alta qualidade.
+
+Partindo do mesmo princípio adotado para escolher a utilização de uma rede pré-treinada, julgamos coerente buscar datasets de imagens prontos e livre acesso na internet. CNNs têm a tendência de demandar um número muito alto de imagens para um treinamento bem-sucedido capaz de generalizar a extração das características e correta classificação das imagens. No caso do YOLOv8, é recomendado mais de 1500 imagens e mais de 10 mil objetos anotados por classe \cite{ultralyticstipstraining}. Tendo em vista nossas limitações de tempo e recursos, seria impraticável alcançar esses números capturando e anotando imagens por conta própria.
+
+A partir dessa constatação, recorremos a estabelecidos repositórios de datasets para a nossa pesquisa: Kaggle \cite{kaggle}, Roboflow  \cite{roboflow} e AIcrowd \cite{aicrowd}. Na nossa busca, demos prioridade a datasets que incluissem uma coleção grande e diversa de imagens de alimentos e que já estivessem com anotações no formato YOLO. Pela popularidade do YOLO, não foi difícil encontrar datasets nesse formato.
+
+Um dataset promissor, TODO[explicar dataset escolhido].
+
+TODO[problema com o dataset].
+
+TODO[como o dataset foi alterado para o treinamento].
 
 \subsection{Treinamento}
 \label{sec:train}
-\lipsum[1].
+
+TODO[deteccao vs segmentacao].
+
+TODO[congelamento].
+
+TODO[nano vs small].
+
+TODO[versoes diferentes do dataset].
+
+TODO[hiperparametros].
+
+TODO[vies e variancia].
 
 \subsection{Estimatição de quantidades e valor nutricional}
 \label{sec:quant}
