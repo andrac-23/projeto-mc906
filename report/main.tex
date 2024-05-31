@@ -1,1 +1,157 @@
-Hello, world!
+\documentclass[journal]{IEEEtran}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{romannum}
+
+\usepackage[thinc]{esdiff}
+\usepackage{float}
+\usepackage{graphicx}% Include figure files
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{hyperref}% add hypertext capabilities
+\usepackage{amsmath}
+\usepackage[normalem]{ulem}
+
+\usepackage[margin=0.6in]{geometry}
+\usepackage{indentfirst}        % indenta primeiro parágrafo
+
+\usepackage{lipsum}
+
+\ifCLASSINFOpdf
+  % \usepackage[pdftex]{graphicx}
+
+\else
+
+\fi
+
+
+
+\begin{document}
+
+\title{Relatório Técnico de Projeto\\ MC906/MO416 }
+
+\author{
+André Rodrigues Alves da Silva (231392) \\
+Gustavo Nascimento Soares (217530) \\ 
+Marcella de Sant Ana (223588) \\
+Vinícius Carvalho Pimpim (194940)
+} %AUTORES
+
+
+
+
+% The paper headers
+\markboth{MC906/MO416 2024-1, UNICAMP}%
+{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for IEEE Journals}
+
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract or keywords.
+\renewcommand{\abstractname}{Resumo\hspace{0.1cm}}
+% \begin{abstract}
+% \hspace{0.05cm} \lipsum[1]
+
+% \end{abstract}
+
+\IEEEpeerreviewmaketitle
+
+
+\section{Introdução}
+\label{sec:introducao}
+
+\IEEEPARstart{Q}{uando} \lipsum[1].
+
+\section{Detecção de Objetos}
+\label{sec:deteccao_objetos}
+\lipsum[1].
+
+\section{YOLO - \textit{You Only Look Once}}
+\label{sec:yolo}
+\lipsum[1].
+
+\section{Dataset}
+\label{sec:dataset}
+\lipsum[1].
+
+\section{Testes}
+\label{sec:testes}
+\lipsum[1].
+
+\section{Treinamento Final}
+\label{sec:treinamento_final}
+\lipsum[1].
+
+\section{Resultados}
+\label{sec:resultados}
+\lipsum[1].
+
+\section{Conclusão}
+\label{sec:conclusao}
+\lipsum[1].
+
+\clearpage
+
+\appendices
+\section{Figuras}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/ipc.png}
+    \caption{Novo tratamento da mensagem \texttt{SCHEDULING\textunderscore INHERIT} em \textit{sched}}
+    \label{fig:ipc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/system-conf.png}
+    \caption{Entradas adicionadas em system.conf}
+    \label{fig:systemconf}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/track.png}
+    \caption{Resultado da execução do programa track\_process\_test}
+    \label{fig:track}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/child.png}
+    \caption{Resultado da execução do programa child\_test}
+    \label{fig:child}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/normal.png}
+    \caption{Resultado da execução do programa normal\_test}
+    \label{fig:normal}
+\end{figure}
+
+% colocar figuras anteriores aqui
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/panic.png}
+    \caption{Mensagem apresentada pelo Minix3 na inicialização do sistema após as alterações}
+    \label{fig:panic}
+\end{figure}
+
+\begin{thebibliography}{1}
+
+\bibitem{}
+Tanenbaum, Andrew S.; Woodhull, Albert S. (1987). Operating Systems: Design and Implementation. ISBN 9780131429383.
+
+\bibitem{}
+Minix3 - IPA about the creation of the user mode scheduler, url = https://www.minix3.org/docs/scheduling/report.pdf
+
+\bibitem{}
+  Minix3 developers guide - driver programming, url = https://wiki.minix3.org/doku.php?id=developersguide:driverprogramming 
+
+\end{thebibliography}
+\end{document}
