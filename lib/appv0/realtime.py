@@ -3,6 +3,9 @@ import numpy as np
 import tkinter as tk
 import bbox_visualizer as bbv
 # from ultralytics import YOLO
+import requests
+from dotenv import load_dotenv
+import os
 
 def insert_title_to_frame(frame, text):
     font_scale = 1
@@ -74,9 +77,92 @@ def get_yolo_detection_results(frame):
     # return [p_cls_and_bbox, f_cls_and_bboxes]
     return [["prato", [386, 126, 872, 588]], [("bread", [416, 136, 802, 548])]] # exemplo de retorno
 
+def get_food_on_api(food_name):
+    dotenv_path = '.env'
+    load_dotenv(dotenv_path)
+
+    api_url = str(os.getenv('API_URL'))
+    api_key = os.getenv('API_KEY')
+
+    # headers = {
+    #     'Authorization': f'Bearer {api_key}'
+    # }
+    params = {
+        'query': str(food_name),
+        'dataType': 'Branded',
+        'pageSize': '1',
+        'pageNumber': '0',
+        'sortBy': 'dataType.keyword',
+        'sortOrder': 'asc',
+        'api_key': api_key
+    }
+    response = requests.get(api_url, params=params)
+
+    if response.status_code == 200:
+        return response.json()["foods"][0]
+    else:
+        raise Exception(f"Erro na requisição: {response.status_code}")
+
 def analisar_saude_do_prato(p_result, f_results):
-    # @TODO
-    pass
+    plate_area = (p_result[1][2] - p_result[1][0])*(p_result[1][3] - p_result[1][1])
+
+    foods_found = dict()
+    relative_sum_proteins, relative_sum_carbs, relative_sum_veg, relative_sum_calories_density = 0, 0, 0, 0
+    for food in f_results:
+        food_name = food[0]
+        food_area = (food[1][2] - food[1][0])*(food[1][3] - food[1][1])
+        foods_found[food_name]["relative_area"] = food_area/plate_area
+
+        if food_name in "vegetables":
+            relative_sum_veg = 1*foods_found[food_name]["relative_area"]
+            continue
+
+        food_data = get_food_on_api(food_name)
+        foods_found[food_name]["nutrients"]["servings"]["size"] = food_data["servingSize"]
+        foods_found[food_name]["nutrients"]["servings"]["unit"] = food_data["servingSizeUnit"]
+
+        for n in food_data["foodNutrients"]:
+            gotProtein = 'protein' in foods_found[food_name]["nutrients"]
+            gotCarbs = 'carbs' in foods_found[food_name]["nutrients"]
+            gotCalories = 'calories' in foods_found[food_name]["nutrients"]
+            if gotProtein and gotCarbs and gotCalories:
+                break
+            if not gotProtein and 'protein' in str(n["nutrientName"]).lower():
+                foods_found[food_name]["nutrients"]["protein"]["unit"] = n["unitName"]
+                foods_found[food_name]["nutrients"]["protein"]["value"] = n["value"]
+            if not gotCarbs and 'carbohydrate' in str(n["nutrientName"]).lower():
+                foods_found[food_name]["nutrients"]["carbs"]["unit"] = n["unitName"]
+                foods_found[food_name]["nutrients"]["carbs"]["value"] = n["value"]
+            if not gotCalories and 'energy' in str(n["nutrientName"]).lower():
+                foods_found[food_name]["nutrients"]["calories"]["unit"] = n["unitName"]
+                foods_found[food_name]["nutrients"]["calories"]["value"] = n["value"]
+
+        #TODO - Lidar com liquidos (unidade de volume)
+        # if "l" in foods_found[food_name]["nutrients"]["servings"]["unit"].lower()
+
+        factor_protein, factor_carbs = 1, 1
+        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["protein"]["unit"]).lower:
+            factor_protein = 0.001
+        foods_found[food_name]["nutrients"]["protein"]["percentage"] = factor_protein*(foods_found[food_name]["nutrients"]["protein"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
+
+        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["carbs"]["unit"]).lower:
+            factor_carbs = 0.001
+        foods_found[food_name]["nutrients"]["carbs"]["percentage"] = factor_carbs*(foods_found[food_name]["nutrients"]["carbs"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
+
+        foods_found[food_name]["nutrients"]["calories"]["density"] = foods_found[food_name]["nutrients"]["calories"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"]
+        
+        relative_sum_proteins += foods_found[food_name]["nutrients"]["protein"]["percentage"]
+        relative_sum_carbs += foods_found[food_name]["nutrients"]["carbs"]["percentage"]
+        relative_sum_calories_density += foods_found[food_name]["nutrients"]["calories"]["density"]
+
+    if relative_sum_calories_density >= 4:
+        print('Refeição calórica!')
+
+    average_health = (0.25*relative_sum_proteins + 0.25*relative_sum_carbs + 0.5*relative_sum_veg)/3
+
+    return average_health, relative_sum_calories_density
+    
+    
 
 def adicionar_resultados_yolo(frame, yolov8_results, add_plate=True):
     p_result, f_results = yolov8_results[0], yolov8_results[1]
