@@ -109,7 +109,7 @@ def analisar_saude_do_prato(p_result, f_results):
     foods_found = dict()
     relative_sum_proteins, relative_sum_carbs, relative_sum_veg, relative_sum_calories_density = 0, 0, 0, 0
     for food in f_results:
-        food_name = food[0]
+        food_name = str(food[0]).replace("_", " ")
         food_area = (food[1][2] - food[1][0])*(food[1][3] - food[1][1])
         foods_found[food_name]["relative_area"] = food_area/plate_area
 
