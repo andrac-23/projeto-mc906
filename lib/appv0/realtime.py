@@ -8,6 +8,7 @@ import bbox_visualizer as bbv
 import requests
 from dotenv import load_dotenv
 import os
+import time
 
 def insert_title_to_frame(frame, text):
     font_scale = 1
@@ -19,7 +20,7 @@ def insert_title_to_frame(frame, text):
     cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness) # type: ignore
     return
 
-def insert_rectangle_to_frame(frame):
+def insert_rectangle_to_frame(frame, yolov8_results):
     # forma do retangulo
     frame_height, frame_width = frame.shape[:2]
     top_left_point = (int(0.87 * frame_width), int(0.075 * frame_height))
@@ -37,7 +38,9 @@ def insert_rectangle_to_frame(frame):
     cv.rectangle(frame, fill_start_point, fill_end_point, (52, 57, 244), cv.FILLED) # type: ignore
 
     # texto na base do retangulo
-    text = "38%"
+    p_result, f_results = yolov8_results[0], yolov8_results[1]
+    percentual_healthy, calories_density = analisar_saude_do_prato(p_result, f_results)
+    text = f'{percentual_healthy}%'
     font_scale = 1
     font_thickness = 1
     (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness) # type: ignore
@@ -49,8 +52,7 @@ def insert_rectangle_to_frame(frame):
     return
 
 def adicionar_interface_inicial(frame):
-    insert_title_to_frame(frame, "PROJETO MC906")
-    insert_rectangle_to_frame(frame)
+    return
 
 def get_screen_resolution():
     root = tk.Tk()
@@ -68,14 +70,14 @@ def move_window_to_center(window_name, width, height):
     return
 
 def get_yolo_detection_results(frame):
-    food_model = YOLO(r"./lib/appv0/models/food.pt")
+    food_model = YOLO(r"C:\Users\marcella_st_ana\Documents\pos_graduacao\materias\intro_ia\repos\projeto-mc906\lib\appv0\models\food.pt")
     f_results = food_model.predict([frame])[0]
     if not isinstance(f_results.boxes, Boxes):
         raise RuntimeError("no plate boxes returned")
     
-    f_cls_and_bboxes = [(f_results.names[cls], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
+    f_cls_and_bboxes = [(f_results.names[int(cls)], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
 
-    plate_model = YOLO(r"./lib/appv0/models/plate.pt")
+    plate_model = YOLO(r"C:\Users\marcella_st_ana\Documents\pos_graduacao\materias\intro_ia\repos\projeto-mc906\lib\appv0\models\plate.pt")
     p_results = plate_model.predict([frame])[0]
     if not isinstance(p_results.boxes, Boxes):
         raise RuntimeError("no food boxes returned")
@@ -125,7 +127,7 @@ def analisar_saude_do_prato(p_result, f_results):
         foods_found[food_name]["relative_area"] = food_area/plate_area
 
         if food_name in "vegetables":
-            relative_sum_veg = 1*foods_found[food_name]["relative_area"]
+            relative_sum_veg += 1*foods_found[food_name]["relative_area"]
             continue
 
         food_data = get_food_on_api(food_name)
@@ -154,12 +156,18 @@ def analisar_saude_do_prato(p_result, f_results):
         #TODO - Lidar com liquidos (unidade de volume)
         # if "l" in foods_found[food_name]["nutrients"]["servings"]["unit"].lower()
 
+        normalizeScale = {
+            "g": "g",
+            "grm": "g",
+            "mg": "mg"
+        }
+
         factor_protein, factor_carbs = 1, 1
-        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["protein"]["unit"]).lower():
+        if normalizeScale[str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower()] != normalizeScale[str(foods_found[food_name]["nutrients"]["protein"]["unit"]).lower()]:
             factor_protein = 0.001
         foods_found[food_name]["nutrients"]["protein"]["percentage"] = factor_protein*(foods_found[food_name]["nutrients"]["protein"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
 
-        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["carbs"]["unit"]).lower():
+        if normalizeScale[str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower()] != normalizeScale[str(foods_found[food_name]["nutrients"]["carbs"]["unit"]).lower()]:
             factor_carbs = 0.001
         foods_found[food_name]["nutrients"]["carbs"]["percentage"] = factor_carbs*(foods_found[food_name]["nutrients"]["carbs"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
 
@@ -174,14 +182,14 @@ def analisar_saude_do_prato(p_result, f_results):
 
     average_health = (0.25*relative_sum_proteins + 0.25*relative_sum_carbs + 0.5*relative_sum_veg)/3
 
-    return average_health, relative_sum_calories_density
+    return average_health*100, relative_sum_calories_density
     
     
 
 def adicionar_resultados_yolo(frame, yolov8_results, add_plate=True):
     p_result, f_results = yolov8_results[0], yolov8_results[1]
 
-    resultados = analisar_saude_do_prato(p_result, f_results)
+    # percentual_healthy, calories_density = analisar_saude_do_prato(p_result, f_results)
 
     bboxes = [p_result[1]] + [bbox for _, bbox in f_results]
     labels = [p_result[0]] + [cls for cls, _ in f_results]
@@ -196,36 +204,40 @@ def adicionar_resultados_yolo(frame, yolov8_results, add_plate=True):
     return frame
 
 def app():
-    # cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(0)
     # get current webcam resolution
     # cap.set(cv.CAP_PROP_FRAME_WIDTH, 1600)
     # cap.set(cv.CAP_PROP_FRAME_HEIGHT, 900)
-    # if not cap.isOpened():
-    #     print("Erro: Não foi possível abrir a câmera")
-    #     return
+    if not cap.isOpened():
+        print("Erro: Não foi possível abrir a câmera")
+        return
     while True:
-        # ret, frame = cap.read()
-        # if not ret:
-        #     print("Erro: Não foi possível capturar o frame")
-        #     continue
+        ret, frame = cap.read()
+        if not ret:
+            print("Erro: Não foi possível capturar o frame")
+            continue
 
         # frame = cv.imread(r"localizacao.jpg")
-        frame = cv.imread(r"./lib/appv0/images/healthy_dish_test1.png") # type: ignore
+        # frame = cv.imread(r"./lib/appv0/images/healthy_dish_test1.png") # type: ignore
 
         yolo_results = get_yolo_detection_results(frame)
 
-        adicionar_interface_inicial(frame)
+        # Adicionando interface inicial
+        insert_title_to_frame(frame, "PROJETO MC906")
+        insert_rectangle_to_frame(frame, yolo_results)
+
         frame = adicionar_resultados_yolo(frame, yolo_results)
 
         cv.imshow("Realtime", frame) # type: ignore
-        #move_window_to_center("Realtime", *frame.shape[:2][::-1])
+        move_window_to_center("Realtime", *frame.shape[:2][::-1])
 
         # TODO escolher o tamanho da janela
         # TODO deixar a janela no centro da tela
-        # cv.resizeWindow("Realtime")
+        cv.resizeWindow("Realtime") # type: ignore
         if cv.waitKey(0) == ord("q"): # type: ignore
             break
-    # cap.release()
+        time.sleep(2)
+    cap.release()
     cv.destroyAllWindows() # type: ignore
 
 if __name__ == "__main__":
