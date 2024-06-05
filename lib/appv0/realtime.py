@@ -1,5 +1,7 @@
+from ultralytics import YOLO
+from ultralytics.engine.results import Results, Boxes
 import cv2 as cv
-import numpy as np
+# import numpy as np
 import tkinter as tk
 import bbox_visualizer as bbv
 # from ultralytics import YOLO
@@ -10,11 +12,11 @@ import os
 def insert_title_to_frame(frame, text):
     font_scale = 1
     font_thickness = 2
-    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness) # type: ignore
     height, width = frame.shape[:2]
     x = (width - text_width) // 2 # centralizado
     y = int(0.075 * height) # 7.5% da altura
-    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness)
+    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness) # type: ignore
     return
 
 def insert_rectangle_to_frame(frame):
@@ -32,18 +34,18 @@ def insert_rectangle_to_frame(frame):
     # Define the filled rectangle parameters starting from the base
     fill_start_point = (top_left_point[0], bottom_right_point[1] - fill_height)
     fill_end_point = bottom_right_point
-    cv.rectangle(frame, fill_start_point, fill_end_point, (52, 57, 244), cv.FILLED)
+    cv.rectangle(frame, fill_start_point, fill_end_point, (52, 57, 244), cv.FILLED) # type: ignore
 
     # texto na base do retangulo
     text = "38%"
     font_scale = 1
     font_thickness = 1
-    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness) # type: ignore
     x = top_left_point[0] + (rect_width - text_width) // 2
     y = bottom_right_point[1] - text_height - 50
-    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness) # type: ignore
 
-    cv.rectangle(frame, top_left_point, bottom_right_point, (8, 184, 27), 2)
+    cv.rectangle(frame, top_left_point, bottom_right_point, (8, 184, 27), 2) # type: ignore
     return
 
 def adicionar_interface_inicial(frame):
@@ -62,20 +64,25 @@ def move_window_to_center(window_name, width, height):
     screen_height = int(screen_height * 0.90) # 90% da tela
     x = (screen_width - width) // 2
     y = (screen_height - height) // 2
-    cv.moveWindow(window_name, x, y)
+    cv.moveWindow(window_name, x, y) # type: ignore
     return
 
 def get_yolo_detection_results(frame):
-    # food_model = YOLO(r"localizacao_do_modelo.pt")
-    # f_results = food_model.predict([frame])[0]
-    # f_cls_and_bboxes = [(f_results.names[cls], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
+    food_model = YOLO(r"./lib/appv0/models/food.pt")
+    f_results = food_model.predict([frame])[0]
+    if not isinstance(f_results.boxes, Boxes):
+        raise RuntimeError("no plate boxes returned")
+    
+    f_cls_and_bboxes = [(f_results.names[cls], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
 
-    # plate_model = YOLO(r"localizacao_do_modelo.pt")
-    # p_results = plate_model.predict([frame])[0]
-    # p_cls_and_bbox = ["prato", list(map(int, p_results.boxes.xyxy[0]))] # só tem um prato por imagem
+    plate_model = YOLO(r"./lib/appv0/models/plate.pt")
+    p_results = plate_model.predict([frame])[0]
+    if not isinstance(p_results.boxes, Boxes):
+        raise RuntimeError("no food boxes returned")
+    p_cls_and_bbox = ["prato", list(map(int, p_results.boxes.xyxy[0]))] # só tem um prato por imagem
 
-    # return [p_cls_and_bbox, f_cls_and_bboxes]
-    return [["prato", [386, 126, 872, 588]], [("bread", [416, 136, 802, 548])]] # exemplo de retorno
+    return [p_cls_and_bbox, f_cls_and_bboxes]
+    # return [["prato", [386, 126, 872, 588]], [("bread", [416, 136, 802, 548])]] # exemplo de retorno
 
 def get_food_on_api(food_name):
     dotenv_path = '.env'
@@ -84,9 +91,6 @@ def get_food_on_api(food_name):
     api_url = str(os.getenv('API_URL'))
     api_key = os.getenv('API_KEY')
 
-    # headers = {
-    #     'Authorization': f'Bearer {api_key}'
-    # }
     params = {
         'query': str(food_name),
         'dataType': 'Branded',
@@ -110,7 +114,14 @@ def analisar_saude_do_prato(p_result, f_results):
     relative_sum_proteins, relative_sum_carbs, relative_sum_veg, relative_sum_calories_density = 0, 0, 0, 0
     for food in f_results:
         food_name = str(food[0]).replace("_", " ")
+        foods_found[food_name] = {
+            "nutrients": {
+                "servings": {}
+            }
+        }
+
         food_area = (food[1][2] - food[1][0])*(food[1][3] - food[1][1])
+        
         foods_found[food_name]["relative_area"] = food_area/plate_area
 
         if food_name in "vegetables":
@@ -128,12 +139,15 @@ def analisar_saude_do_prato(p_result, f_results):
             if gotProtein and gotCarbs and gotCalories:
                 break
             if not gotProtein and 'protein' in str(n["nutrientName"]).lower():
+                foods_found[food_name]["nutrients"]["protein"] = {}
                 foods_found[food_name]["nutrients"]["protein"]["unit"] = n["unitName"]
                 foods_found[food_name]["nutrients"]["protein"]["value"] = n["value"]
             if not gotCarbs and 'carbohydrate' in str(n["nutrientName"]).lower():
+                foods_found[food_name]["nutrients"]["carbs"] = {}
                 foods_found[food_name]["nutrients"]["carbs"]["unit"] = n["unitName"]
                 foods_found[food_name]["nutrients"]["carbs"]["value"] = n["value"]
             if not gotCalories and 'energy' in str(n["nutrientName"]).lower():
+                foods_found[food_name]["nutrients"]["calories"] = {}
                 foods_found[food_name]["nutrients"]["calories"]["unit"] = n["unitName"]
                 foods_found[food_name]["nutrients"]["calories"]["value"] = n["value"]
 
@@ -141,11 +155,11 @@ def analisar_saude_do_prato(p_result, f_results):
         # if "l" in foods_found[food_name]["nutrients"]["servings"]["unit"].lower()
 
         factor_protein, factor_carbs = 1, 1
-        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["protein"]["unit"]).lower:
+        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["protein"]["unit"]).lower():
             factor_protein = 0.001
         foods_found[food_name]["nutrients"]["protein"]["percentage"] = factor_protein*(foods_found[food_name]["nutrients"]["protein"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
 
-        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["carbs"]["unit"]).lower:
+        if str(foods_found[food_name]["nutrients"]["servings"]["unit"]).lower() != str(foods_found[food_name]["nutrients"]["carbs"]["unit"]).lower():
             factor_carbs = 0.001
         foods_found[food_name]["nutrients"]["carbs"]["percentage"] = factor_carbs*(foods_found[food_name]["nutrients"]["carbs"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
 
@@ -167,7 +181,7 @@ def analisar_saude_do_prato(p_result, f_results):
 def adicionar_resultados_yolo(frame, yolov8_results, add_plate=True):
     p_result, f_results = yolov8_results[0], yolov8_results[1]
 
-    # resultados = analisar_saude_do_prato(p_result, f_results)
+    resultados = analisar_saude_do_prato(p_result, f_results)
 
     bboxes = [p_result[1]] + [bbox for _, bbox in f_results]
     labels = [p_result[0]] + [cls for cls, _ in f_results]
@@ -196,23 +210,23 @@ def app():
         #     continue
 
         # frame = cv.imread(r"localizacao.jpg")
-        frame = cv.imread(r"localizacao.jpeg")
+        frame = cv.imread(r"./lib/appv0/images/healthy_dish_test1.png") # type: ignore
 
         yolo_results = get_yolo_detection_results(frame)
 
         adicionar_interface_inicial(frame)
         frame = adicionar_resultados_yolo(frame, yolo_results)
 
-        cv.imshow("Realtime", frame)
+        cv.imshow("Realtime", frame) # type: ignore
         #move_window_to_center("Realtime", *frame.shape[:2][::-1])
 
         # TODO escolher o tamanho da janela
         # TODO deixar a janela no centro da tela
         # cv.resizeWindow("Realtime")
-        if cv.waitKey(0) == ord("q"):
+        if cv.waitKey(0) == ord("q"): # type: ignore
             break
     # cap.release()
-    cv.destroyAllWindows()
+    cv.destroyAllWindows() # type: ignore
 
 if __name__ == "__main__":
     app()
