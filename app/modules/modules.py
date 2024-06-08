@@ -1,25 +1,28 @@
 from ultralytics import YOLO
-from ultralytics.engine.results import Results, Boxes
+from ultralytics.engine.results import Boxes
 import cv2 as cv
-# import numpy as np
 import tkinter as tk
-import bbox_visualizer as bbv
-# from ultralytics import YOLO
 import requests
 from dotenv import load_dotenv
 import os
 
-def insert_title_to_frame(frame, text):
-    font_scale = 1
-    font_thickness = 2
-    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness) # type: ignore
-    height, width = frame.shape[:2]
-    x = (width - text_width) // 2 # centralizado
-    y = int(0.075 * height) # 7.5% da altura
-    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness) # type: ignore
-    return
 
-def insert_rectangle_to_frame(frame, yolov8_results):
+def get_yolo_detection_results(frame, models_dir):
+    food_model = YOLO(build_path(models_dir,'food.pt'))
+    f_results = food_model.predict([frame])[0]
+    if not isinstance(f_results.boxes, Boxes):
+        raise RuntimeError("no plate boxes returned")
+    f_cls_and_bboxes = [(f_results.names[int(cls)], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
+
+    plate_model = YOLO(build_path(models_dir,'plate.pt'))
+    p_results = plate_model.predict([frame])[0]
+    if not isinstance(p_results.boxes, Boxes):
+        raise RuntimeError("no food boxes returned")
+    p_cls_and_bbox = ["prato", list(map(int, p_results.boxes.xyxy[0]))]
+
+    return [p_cls_and_bbox, f_cls_and_bboxes]
+
+def insert_food_regions_detected(frame, yolov8_results):
     # forma do retangulo
     frame_height, frame_width = frame.shape[:2]
     top_left_point = (int(0.87 * frame_width), int(0.075 * frame_height))
@@ -29,65 +32,72 @@ def insert_rectangle_to_frame(frame, yolov8_results):
     rect_height = bottom_right_point[1] - top_left_point[1]
 
     p_result, f_results = yolov8_results[0], yolov8_results[1]
-    percentual_healthy, calories_density = analisar_saude_do_prato(p_result, f_results)
+    percentual_healthy, calories_density = __healthy_analisys(p_result, f_results)
+
     # preencher retangulo
-    # fill_percentage = percentual_healthy/100  # 60% fill
-    fill_percentage = 0.38  # 60% fill
+    fill_percentage = percentual_healthy/100  # 60% fill
     fill_height = int(rect_height * fill_percentage)
+
     # Define the filled rectangle parameters starting from the base
     fill_start_point = (top_left_point[0], bottom_right_point[1] - fill_height)
     fill_end_point = bottom_right_point
-    cv.rectangle(frame, fill_start_point, fill_end_point, (52, 57, 244), cv.FILLED) # type: ignore
+    cv.rectangle(frame, fill_start_point, fill_end_point, (52, 57, 244), cv.FILLED)
 
     # texto na base do retangulo
-
-    # text = f'{percentual_healthy}%'
-    text = "38%"
+    text = "{:.2f}".format(percentual_healthy)
     font_scale = 1
     font_thickness = 1
-    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness) # type: ignore
+    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
     x = top_left_point[0] + (rect_width - text_width) // 2
     y = bottom_right_point[1] - text_height - 50
-    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness) # type: ignore
+    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
 
-    cv.rectangle(frame, top_left_point, bottom_right_point, (8, 184, 27), 2) # type: ignore
+    cv.rectangle(frame, top_left_point, bottom_right_point, (8, 184, 27), 2)
+
+    font_scale_f = 0.5
+    for item in f_results:
+        name = item[0]
+        xmin, ymin, xmax, ymax = item[1][0], item[1][1], item[1][2], item[1][3]
+
+        cv.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+
+        text_x = xmin
+        text_y = ymin - 10
+        text_y = max(text_y, 10)
+        cv.putText(frame, name, (text_x, text_y), cv.FONT_HERSHEY_SIMPLEX, font_scale_f, (255, 0, 0), 1)
+
+    return frame
+
+def build_path(*paths):
+    return os.path.join(*paths)
+
+def __insert_title_to_frame(frame, text):
+    font_scale = 1
+    font_thickness = 2
+    (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+    height, width = frame.shape[:2]
+    x = (width - text_width) // 2 # centralizado
+    y = int(0.075 * height) # 7.5% da altura
+    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness)
     return
 
-def get_screen_resolution():
+def __get_screen_resolution():
     root = tk.Tk()
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     root.destroy()
     return screen_width, screen_height
 
-def move_window_to_center(window_name, width, height):
-    screen_width, screen_height = get_screen_resolution()
-    screen_height = int(screen_height * 0.90) # 90% da tela
+def __move_window_to_center(window_name, width, height):
+    screen_width, screen_height = __get_screen_resolution()
+    screen_height = int(screen_height * 0.50) # 90% da tela
     x = (screen_width - width) // 2
     y = (screen_height - height) // 2
-    cv.moveWindow(window_name, x, y) # type: ignore
+    cv.moveWindow(window_name, x, y)
     return
 
-def get_yolo_detection_results(frame):
-    food_model = YOLO(r"C:\Users\marcella_st_ana\Documents\pos_graduacao\materias\intro_ia\repos\projeto-mc906\lib\appv0\models\food.pt")
-    f_results = food_model.predict([frame])[0]
-    if not isinstance(f_results.boxes, Boxes):
-        raise RuntimeError("no plate boxes returned")
-    
-    f_cls_and_bboxes = [(f_results.names[int(cls)], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
-
-    plate_model = YOLO(r"C:\Users\marcella_st_ana\Documents\pos_graduacao\materias\intro_ia\repos\projeto-mc906\lib\appv0\models\plate.pt")
-    p_results = plate_model.predict([frame])[0]
-    if not isinstance(p_results.boxes, Boxes):
-        raise RuntimeError("no food boxes returned")
-    p_cls_and_bbox = ["prato", list(map(int, p_results.boxes.xyxy[0]))] # só tem um prato por imagem
-
-    return [p_cls_and_bbox, f_cls_and_bboxes]
-    # return [["prato", [386, 126, 872, 588]], [("bread", [416, 136, 802, 548])]] # exemplo de retorno
-
-def get_food_on_api(food_name):
-    dotenv_path = '.env'
-    load_dotenv(dotenv_path)
+def __get_food_on_api(food_name):
+    load_dotenv(r'C:\Users\marcella_st_ana\Documents\pos_graduacao\materias\intro_ia\repos\projeto-mc906\.env')
 
     api_url = str(os.getenv('API_URL'))
     api_key = os.getenv('API_KEY')
@@ -108,7 +118,7 @@ def get_food_on_api(food_name):
     else:
         raise Exception(f"Erro na requisição: {response.status_code}")
 
-def analisar_saude_do_prato(p_result, f_results):
+def __healthy_analisys(p_result, f_results):
     plate_area = (p_result[1][2] - p_result[1][0])*(p_result[1][3] - p_result[1][1])
 
     foods_found = dict()
@@ -129,7 +139,7 @@ def analisar_saude_do_prato(p_result, f_results):
             relative_sum_veg += 1*foods_found[food_name]["relative_area"]
             continue
 
-        food_data = get_food_on_api(food_name)
+        food_data = __get_food_on_api(food_name)
         foods_found[food_name]["nutrients"]["servings"]["size"] = food_data["servingSize"]
         foods_found[food_name]["nutrients"]["servings"]["unit"] = food_data["servingSizeUnit"]
 
@@ -177,60 +187,13 @@ def analisar_saude_do_prato(p_result, f_results):
         relative_sum_calories_density += foods_found[food_name]["nutrients"]["calories"]["density"]
 
     if relative_sum_calories_density >= 4:
-        print('Refeição calórica!')
+        print('Densidade relativa > 4 => Refeição potencialmente calórica')
 
-    average_health = (0.25*relative_sum_proteins + 0.25*relative_sum_carbs + 0.5*relative_sum_veg)/3
+    average_health = (relative_sum_proteins/0.25 + relative_sum_carbs/0.25 + relative_sum_veg/0.5)/3
+    print("Média de salubidade: {:.2f} %".format(average_health*100))
+    print("Proteínas: {:.2f} %".format(relative_sum_proteins*100))
+    print("Carboidratos: {:.2f} %".format(relative_sum_carbs*100))
+    print("Vegetais: {:.2f} %".format(relative_sum_veg*100))
+    print("Densidade calórica relativa e agregada: {:.2f}".format(relative_sum_calories_density))
 
     return average_health*100, relative_sum_calories_density
-    
-    
-
-def adicionar_resultados_yolo(frame, yolov8_results, add_plate=True):
-    p_result, f_results = yolov8_results[0], yolov8_results[1]
-
-    bboxes = [p_result[1]] + [bbox for _, bbox in f_results]
-    labels = [p_result[0]] + [cls for cls, _ in f_results]
-
-    if add_plate:
-        frame = bbv.draw_rectangle(frame, p_result[1])
-        frame = bbv.add_label(frame, "prato", p_result[1])
-
-    frame = bbv.draw_multiple_rectangles(frame, bboxes[1:], bbox_color=(0, 0, 189), is_opaque=False, alpha=0.3)
-    frame = bbv.add_multiple_labels(frame, labels[1:], bboxes[1:], text_bg_color=(193, 193, 163), top=False)
-
-    return frame
-
-def app():
-    # cap = cv.VideoCapture(0)
-    # get current webcam resolution
-    # cap.set(cv.CAP_PROP_FRAME_WIDTH, 1600)
-    # cap.set(cv.CAP_PROP_FRAME_HEIGHT, 900)
-    # if not cap.isOpened():
-    #     print("Erro: Não foi possível abrir a câmera")
-    #     return
-    while True:
-        # ret, frame = cap.read()
-        # if not ret:
-        #     print("Erro: Não foi possível capturar o frame")
-        #     continue
-
-        # frame = cv.imread(r"localizacao.jpg")
-        frame = cv.imread(r"C:\Users\marcella_st_ana\Documents\pos_graduacao\materias\intro_ia\repos\projeto-mc906\lib\appv0\images\healthy_dish_test1.png") # type: ignore
-
-        yolo_results = get_yolo_detection_results(frame)
-
-        frame = adicionar_resultados_yolo(frame, yolo_results)
-
-        cv.imshow("Realtime", frame) # type: ignore
-        #move_window_to_center("Realtime", *frame.shape[:2][::-1])
-
-        # TODO escolher o tamanho da janela
-        # TODO deixar a janela no centro da tela
-        # cv.resizeWindow("Realtime")
-        if cv.waitKey(0) == ord("q"): # type: ignore
-            break
-    # cap.release()
-    cv.destroyAllWindows() # type: ignore
-
-if __name__ == "__main__":
-    app()

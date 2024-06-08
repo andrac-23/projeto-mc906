@@ -1,0 +1,187 @@
+\documentclass[journal]{IEEEtran}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{romannum}
+
+\usepackage[thinc]{esdiff}
+\usepackage{float}
+\usepackage{graphicx}% Include figure files
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{hyperref}% add hypertext capabilities
+\usepackage{amsmath}
+\usepackage[normalem]{ulem}
+
+\usepackage[margin=0.6in]{geometry}
+\usepackage{indentfirst}        % indenta primeiro parágrafo
+
+\usepackage{lipsum}
+
+\usepackage[backend=bibtex,style=ieee]{biblatex}
+\addbibresource{refs.bib}
+
+\ifCLASSINFOpdf
+  % \usepackage[pdftex]{graphicx}
+
+\else
+
+\fi
+
+
+
+\begin{document}
+
+\title{Relatório Técnico de Projeto\\ MC906/MO416 }
+
+\author{
+André Rodrigues Alves da Silva (231392) \\
+Gustavo Nascimento Soares (217530) \\ 
+Marcella de Sant Ana (223588) \\
+Vinícius Carvalho Pimpim (194940)
+} %AUTORES
+
+
+
+
+% The paper headers
+\markboth{MC906/MO416 2024-1, UNICAMP}%
+{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for IEEE Journals}
+
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract or keywords.
+\renewcommand{\abstractname}{Resumo\hspace{0.1cm}}
+% \begin{abstract}
+% \hspace{0.05cm} \lipsum[1]
+
+% \end{abstract}
+
+\IEEEpeerreviewmaketitle
+
+
+\section{Introdução}
+\label{sec:introducao}
+
+\IEEEPARstart{A}{} recente disponibilidade de alimentos para uma vasta parcela da população mundial tem representado um avanço significativo na luta contra a fome. No entanto, esse progresso tem sido acompanhado por um aumento alarmante na prevalência de obesidade e doenças relacionadas ao consumo de produtos industrializados. Estudos indicam que a transição para dietas ricas em alimentos processados está diretamente associada ao aumento de problemas de saúde, como diabetes tipo 2 e doenças cardiovasculares \cite{popkin2015nutrition}. A indústria alimentícia produz de maneira crescente alimentos ultraprocessados, palatáveis e de baixo custo que estão se tornando dominantes nas dietas em países desenvolvidos e em desenvolvimento \cite{monteiro2013ultra}. Este projeto visa disponibilizar uma ferramenta de fácil uso para identificação do valor nutricional de alimentos para usuários de todos os níveis de conhecimento. Através da visão computacional e do aprendizado de máquina aplicados em dispositivos móveis, usuários devem ser capazes de tomar melhores decisões alimentares.
+
+\section{Metodologia}
+\label{sec:metodologia}
+Grande parte do desenvolvimento do projeto se deu no processo exploratório de pesquisa e decisão de quais ferramentas utilizar para alcançar o nosso objetivo. Em suma, necessitamos definir um modelo de aprendizado de máquina, uma fonte de dados de treino que representasse bem o problema a ser solucionado, um método de estimação das quantidades de comida presente na refeição do usuário dado a saída do modelo treinado, e finalmente como relacionar as quantidades estimadas com o valor nutricional da refeição.
+
+Priorizando a facilidade de uso, buscamos propor uma solução que fizesse uso de visão computacional e detecção de objetos. O grupo julgou que a vasta adesão do uso de smartphones na atualidade faz com que uma aplicação que não precisa de nada além de uma câmera e um moderado nível de computação seria o ideal para uma solução abrangente e acessível.
+
+Ao longo desta seção descrevemos em mais detalhes as decisões que foram tomadas com relação a cada aspecto da exploração e definição das técnicas utilizadas na implementação da aplicação.
+
+\subsection{Modelo}
+\label{sec:model}
+Um dos pilares de uma aplicação que faz uso de aprendizado de máquina é o(s) modelo(s) utilizado(s) para inferência.
+
+Inicialmente, ao enfrentar um problema de reconhecimento de imagens, é natural considerar o uso de Redes Neurais Convolucionais (CNNs) devido à sua eficácia comprovada em tarefas de visão computacional.
+
+Outra consideração importante foi a decisão de utilizar uma rede pré-treinada em vez de treinar uma rede do zero. Redes pré-treinadas oferecem a vantagem de já terem aprendido uma vasta gama de características de imagens através de um extenso treinamento em grandes datasets. Isso não só economiza tempo e recursos computacionais significativos, mas também proporciona uma base sólida que pode ser ajustada para atender às necessidades específicas do nosso projeto através de técnicas como \textit{fine-tuning}. Treinar uma rede do zero, por outro lado, requer um volume enorme de dados e poder computacional, além de um tempo considerável para alcançar um nível de precisão comparável ao de uma rede pré-treinada. Itens inacessíveis para o nosso escopo.
+
+Entre as diversas arquiteturas de CNNs disponíveis, o modelo YOLO (\textit{You Only Look Once}) \cite{redmon2016you} destacou-se por várias razões. Primeiramente, é um modelo open-source. Ainda, o YOLO é amplamente reconhecido e utilizado tanto por empresas quanto por grupos de pesquisa devido à sua capacidade de realizar detecções de objetos em tempo real. Essa característica é particularmente vantajosa para aplicações que exigem processamento rápido e eficiente, como sistemas de vigilância, veículos autônomos e dispositivos móveis. A arquitetura do YOLO permite a detecção e a classificação de objetos em uma única etapa, ao contrário de outros métodos que dividem o processo em várias fases, o que resulta em uma velocidade significativamente maior.
+
+Além disso, o YOLO foi treinado em datasets abrangentes e diversificados, como o COCO (\textit{Common Objects in Context}) \cite{lin2014microsoft}, que contém uma vasta gama de objetos em diferentes contextos e condições. Isso garante que o modelo tenha uma boa generalização e desempenho em diferentes cenários do mundo real. A comunidade de pesquisa também tem contribuído continuamente para aprimorar e otimizar o YOLO, resultando em versões mais eficientes e precisas do modelo.
+
+Dentre as diversas versões do YOLO disponíveis, foi escolhida a versão 8 (YOLOv8) lançada em janeiro de 2023. Essa escolha foi fundamentada em sua estabilidade, documentação extensa e comprovada eficácia em termos de precisão e eficiência. Segundo o artigo de publicação \cite{varghese2024yolov8}, YOLOv8 atingiu uma APAS (\textit{Average Precision Across Scales}) de 52,7\% no dataset COCO, superando os 50,3\% de YOLOv7. YOLOv8 também atingiu um recorde de velocidade de reconhecimento em 150 frames por segundo (FPS), 10 a mais que o modelo previamente mais rápido, YOLOv5, tinha alcançado. O que torna YOLOv8 o ideal para aplicações em tempo real.
+
+Em comparação com versões mais recentes, YOLOv9 e YOLOv10 (ambas propostas em 2024), a escolha de YOLOv8 se justifica pela sua maturidade e ampla adoção pela comunidade. Apesar das melhorias alcançadas nas versões mais recentes, elas ainda estão em fase inicial de adoção e não possuem o mesmo nível de documentação e suporte que YOLOv8, o que poderia introduzir riscos de estabilidade.
+
+\subsection{Dados}
+\label{sec:data}
+Outro pilar para a nossa aplicação são os dados usados no treinamento. Os dados desempenham um papel crucial no aprendizado de máquina, pois a qualidade e a relevância dos dados utilizados diretamente influenciam o desempenho e a precisão dos modelos. O princípio "garbage in, garbage out," cujo registro mais antigo data de 1957 nos trabalhos do especialista em computadores do exército americano William D. Mellin, destaca que resultados precisos e confiáveis só podem ser obtidos a partir de dados de alta qualidade.
+
+Partindo do mesmo princípio adotado para escolher a utilização de uma rede pré-treinada, julgamos coerente buscar datasets de imagens prontos e livre acesso na internet. CNNs têm a tendência de demandar um número muito alto de imagens para um treinamento bem-sucedido capaz de generalizar a extração das características e correta classificação das imagens. No caso do YOLOv8, é recomendado mais de 1500 imagens e mais de 10 mil objetos anotados por classe \cite{ultralyticstipstraining}. Tendo em vista nossas limitações de tempo e recursos, seria impraticável alcançar esses números capturando e anotando imagens por conta própria.
+
+A partir dessa constatação, recorremos a estabelecidos repositórios de datasets para a nossa pesquisa: Kaggle \cite{kaggle}, Roboflow  \cite{roboflow} e AIcrowd \cite{aicrowd}. Na nossa busca, demos prioridade a datasets que incluissem uma coleção grande e diversa de imagens de alimentos e que já estivessem com anotações no formato YOLO. Pela popularidade do YOLO, não foi difícil encontrar datasets nesse formato.
+
+Um dataset promissor, TODO[explicar dataset escolhido].
+
+TODO[problema com o dataset].
+
+TODO[como o dataset foi alterado para o treinamento].
+
+\subsection{Treinamento}
+\label{sec:train}
+
+TODO[deteccao vs segmentacao].
+
+TODO[congelamento].
+
+TODO[nano vs small].
+
+TODO[versoes diferentes do dataset].
+
+TODO[hiperparametros].
+
+TODO[vies e variancia].
+
+\subsection{Estimatição de quantidades e valor nutricional}
+\label{sec:quant}
+\lipsum[1].
+
+\section{Resultados}
+\label{sec:resultados}
+\lipsum[1].
+
+\section{Conclusão}
+\label{sec:conclusao}
+\lipsum[1].
+
+\clearpage
+
+\appendices
+\section{Figuras}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/ipc.png}
+    \caption{Novo tratamento da mensagem \texttt{SCHEDULING\textunderscore INHERIT} em \textit{sched}}
+    \label{fig:ipc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/system-conf.png}
+    \caption{Entradas adicionadas em system.conf}
+    \label{fig:systemconf}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/track.png}
+    \caption{Resultado da execução do programa track\_process\_test}
+    \label{fig:track}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/child.png}
+    \caption{Resultado da execução do programa child\_test}
+    \label{fig:child}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/normal.png}
+    \caption{Resultado da execução do programa normal\_test}
+    \label{fig:normal}
+\end{figure}
+
+% colocar figuras anteriores aqui
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/panic.png}
+    \caption{Mensagem apresentada pelo Minix3 na inicialização do sistema após as alterações}
+    \label{fig:panic}
+\end{figure}
+
+\printbibliography[title=Bibliografia]
+
+\end{document}

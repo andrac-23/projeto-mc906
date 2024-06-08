@@ -8,7 +8,7 @@
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "./lib/appv0/realtime.py",
+            "program": "./app/main/image_version/main.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.env"
         }
