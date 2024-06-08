@@ -189,11 +189,15 @@ def __healthy_analisys(p_result, f_results):
     if relative_sum_calories_density >= 4:
         print('Densidade relativa > 4 => Refeição potencialmente calórica')
 
+    relative_sum_proteins = relative_sum_proteins if relative_sum_proteins <= 0.25 else 0.25
+    relative_sum_carbs = relative_sum_carbs if relative_sum_carbs <= 0.25 else 0.25
+    relative_sum_veg = relative_sum_veg if relative_sum_veg <= 0.5 else 0.5
+
     average_health = (relative_sum_proteins/0.25 + relative_sum_carbs/0.25 + relative_sum_veg/0.5)/3
     print("Média de salubidade: {:.2f} %".format(average_health*100))
     print("Proteínas: {:.2f} %".format(relative_sum_proteins*100))
     print("Carboidratos: {:.2f} %".format(relative_sum_carbs*100))
     print("Vegetais: {:.2f} %".format(relative_sum_veg*100))
-    print("Densidade calórica relativa e agregada: {:.2f}".format(relative_sum_calories_density))
+    print("Densidade calórica relativa e agregada: {:.2f} g/kcal".format(relative_sum_calories_density))
 
     return average_health*100, relative_sum_calories_density
