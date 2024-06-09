@@ -8,6 +8,7 @@ import os
 
 
 def get_yolo_detection_results(frame, models_dir):
+    print("Realizando detecção de objetos na imagem atual...")
     food_model = YOLO(build_path(models_dir,'food.pt'))
     f_results = food_model.predict([frame])[0]
     if not isinstance(f_results.boxes, Boxes):
@@ -181,24 +182,26 @@ def __healthy_analisys(p_result, f_results):
             factor_carbs = 0.001
         foods_found[food_name]["nutrients"]["carbs"]["percentage"] = factor_carbs*(foods_found[food_name]["nutrients"]["carbs"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
 
+        # VV Assumindo que a porção está sempre em gramas VV
         foods_found[food_name]["nutrients"]["calories"]["density"] = foods_found[food_name]["nutrients"]["calories"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"]
 
         relative_sum_proteins += foods_found[food_name]["nutrients"]["protein"]["percentage"]
         relative_sum_carbs += foods_found[food_name]["nutrients"]["carbs"]["percentage"]
-        relative_sum_calories_density += foods_found[food_name]["nutrients"]["calories"]["density"]
+        relative_sum_calories_density += (foods_found[food_name]["nutrients"]["calories"]["density"] * foods_found[food_name]["relative_area"])
 
+    print("\nRealizando análise nutricional da refeição...\n")
     if relative_sum_calories_density >= 4:
-        print('Densidade relativa > 4 => Refeição potencialmente calórica')
+        print('ATENÇÃO: Densidade calórica relativa > 4 ==> Refeição potencialmente calórica!')
 
     relative_sum_proteins = relative_sum_proteins if relative_sum_proteins <= 0.25 else 0.25
     relative_sum_carbs = relative_sum_carbs if relative_sum_carbs <= 0.25 else 0.25
     relative_sum_veg = relative_sum_veg if relative_sum_veg <= 0.5 else 0.5
 
     average_health = (relative_sum_proteins/0.25 + relative_sum_carbs/0.25 + relative_sum_veg/0.5)/3
-    print("Média de salubidade: {:.2f} %".format(average_health*100))
-    print("Proteínas: {:.2f} %".format(relative_sum_proteins*100))
-    print("Carboidratos: {:.2f} %".format(relative_sum_carbs*100))
-    print("Vegetais: {:.2f} %".format(relative_sum_veg*100))
-    print("Densidade calórica relativa e agregada: {:.2f} g/kcal".format(relative_sum_calories_density))
+    print("Média de salubidade: {:.2f} % saudável".format(average_health*100))
+    print("Proteínas: {:.2f} % da refeição".format(relative_sum_proteins*100))
+    print("Carboidratos: {:.2f} % da refeição".format(relative_sum_carbs*100))
+    print("Vegetais: {:.2f} % da refeição".format(relative_sum_veg*100))
+    print("Densidade calórica relativa e agregada: {:.2f} kcal/g".format(relative_sum_calories_density))
 
     return average_health*100, relative_sum_calories_density
