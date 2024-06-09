@@ -9,7 +9,7 @@ from modules import modules
 def app():
     root_dir = os.path.abspath(modules.build_path(os.path.dirname(__file__), '..', '..', '..'))
     images_dir = modules.build_path(root_dir, 'app', 'main', 'image_version', 'images')
-    ia_models_dir = modules.build_path(root_dir, 'ia_models', 'final')
+    ia_models_dir = modules.build_path(root_dir, 'models', 'final')
 
     for filename in os.listdir(images_dir):
         image_path = modules.build_path(images_dir, filename)

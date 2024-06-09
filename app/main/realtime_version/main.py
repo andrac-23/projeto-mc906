@@ -7,8 +7,8 @@ from modules import modules
 
 def app():
     root_dir = os.path.abspath(modules.build_path(os.path.dirname(__file__), '..', '..', '..'))
-    ia_models_dir = modules.build_path(root_dir, 'ia_models', 'final')
-    
+    ia_models_dir = modules.build_path(root_dir, 'models', 'final')
+
     cap = cv.VideoCapture(0)
     # get current webcam resolution
     # cap.set(cv.CAP_PROP_FRAME_WIDTH, 1600)
@@ -24,7 +24,7 @@ def app():
 
         yolo_results = modules.get_yolo_detection_results(frame, ia_models_dir)
         frame = modules.insert_food_regions_detected(frame, yolo_results)
-        
+
         window_name = "Realtime"
         cv.namedWindow(window_name, cv.WINDOW_NORMAL)
         cv.resizeWindow(window_name, 800, 600)
