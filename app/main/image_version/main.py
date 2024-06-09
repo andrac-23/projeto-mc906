@@ -18,14 +18,17 @@ def app():
         yolo_results = modules.get_yolo_detection_results(frame, ia_models_dir)
         frame = modules.insert_food_regions_detected(frame, yolo_results)
 
-        window_name = "Realtime"
+        window_name = "App - Image Version"
         cv.namedWindow(window_name, cv.WINDOW_NORMAL)
         cv.resizeWindow(window_name, 800, 600)
         cv.imshow(window_name, frame)
         # move_window_to_center("Realtime", *frame.shape[:2][::-1])
 
-        if cv.waitKey(0) == ord("q"):
+        print("\nPressione 'q' para encerrar. Pressione qualquer outra tecla para continuar.")
+        key = cv.waitKey()
+        if key == ord("q"):
             break
+
     cv.destroyAllWindows()
 
 if __name__ == "__main__":
