@@ -97,7 +97,8 @@ def __move_window_to_center(window_name, width, height):
     return
 
 def __get_food_on_api(food_name):
-    load_dotenv(r'C:\Users\marcella_st_ana\Documents\pos_graduacao\materias\intro_ia\repos\projeto-mc906\.env')
+    root_dir = os.path.abspath(build_path(os.path.dirname(__file__), '..', '..'))
+    load_dotenv(build_path(root_dir, '.env'))
 
     api_url = str(os.getenv('API_URL'))
     api_key = os.getenv('API_KEY')
@@ -132,7 +133,7 @@ def __healthy_analisys(p_result, f_results):
         }
 
         food_area = (food[1][2] - food[1][0])*(food[1][3] - food[1][1])
-        
+
         foods_found[food_name]["relative_area"] = food_area/plate_area
 
         if food_name in "vegetables":
@@ -181,7 +182,7 @@ def __healthy_analisys(p_result, f_results):
         foods_found[food_name]["nutrients"]["carbs"]["percentage"] = factor_carbs*(foods_found[food_name]["nutrients"]["carbs"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"])*foods_found[food_name]["relative_area"]
 
         foods_found[food_name]["nutrients"]["calories"]["density"] = foods_found[food_name]["nutrients"]["calories"]["value"]/foods_found[food_name]["nutrients"]["servings"]["size"]
-        
+
         relative_sum_proteins += foods_found[food_name]["nutrients"]["protein"]["percentage"]
         relative_sum_carbs += foods_found[food_name]["nutrients"]["carbs"]["percentage"]
         relative_sum_calories_density += foods_found[food_name]["nutrients"]["calories"]["density"]
