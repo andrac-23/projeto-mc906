@@ -25,12 +25,13 @@ def app():
         yolo_results = modules.get_yolo_detection_results(frame, ia_models_dir)
         frame = modules.insert_food_regions_detected(frame, yolo_results)
         
-        window_name = "Realtime"
+        window_name = "App - Realtime Version"
         cv.namedWindow(window_name, cv.WINDOW_NORMAL)
         cv.resizeWindow(window_name, 800, 600)
         cv.imshow(window_name, frame)
         # move_window_to_center("Realtime", *frame.shape[:2][::-1])
 
+        modules.show_metrics_analisys(yolo_results)
         # TODO escolher o tamanho da janela
         # TODO deixar a janela no centro da tela
         # cv.resizeWindow("Realtime") #type: ignore
