@@ -1,6 +1,0 @@
-bbox-visualizer
-opencv-python
-numpy
-matplotlib
-googletrans==3.1.0a0
-google-generativeai
