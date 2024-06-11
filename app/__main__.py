@@ -1,10 +1,32 @@
 import os
+import queue
+import threading
+import time
 from argparse import ArgumentParser
 from pathlib import Path
 
 import cv2 as cv
 
 from app.lib import modules
+
+# Create a thread-safe queue to store frames
+frame_queue = queue.Queue(maxsize=1)
+yolo_results_global = [modules.Results(
+    food=[],
+    plate=None,
+)]
+
+def run_object_detection(models):
+    while True:
+        if not frame_queue.empty():
+            frame = frame_queue.get()
+
+            # Perform object detection
+            try:
+                yolo_results_global[0] = modules.get_yolo_detection_results(frame, models)
+            except Exception:
+                pass
+        time.sleep(1/30)
 
 
 def image_aux(models: Path | str, image_path: Path | str,) -> None:
@@ -40,6 +62,7 @@ def image(models: Path | str, path: Path | str):
 
 def realtime(models: Path | str):
     cap = cv.VideoCapture(0)
+
     # get current webcam resolution
     # cap.set(cv.CAP_PROP_FRAME_WIDTH, 1600)
     # cap.set(cv.CAP_PROP_FRAME_HEIGHT, 900)
@@ -49,28 +72,35 @@ def realtime(models: Path | str):
     except Exception:
         print("Erro: Não foi possível abrir a câmera")
         return
+
+    # Create and start the object detection thread
+    detection_thread = threading.Thread(target=run_object_detection, args=(models,))
+    detection_thread.start()
+
+    window_name = "Realtime"
+    cv.namedWindow(window_name, cv.WINDOW_NORMAL)
     while True:
         ret, frame = cap.read()
         if not ret:
-            print("Erro: Não foi possível capturar o frame")
-            continue
-
-        yolo_results = modules.get_yolo_detection_results(frame, models)
-        frame = modules.insert_food_regions_detected(frame, yolo_results)
-
-        window_name = "Realtime"
-        cv.namedWindow(window_name, cv.WINDOW_NORMAL)
-        cv.resizeWindow(window_name, 800, 600)
-        cv.imshow(window_name, frame)
-        # move_window_to_center("Realtime", *frame.shape[:2][::-1])
-
-        # TODO escolher o tamanho da janela
-        # TODO deixar a janela no centro da tela
-        # cv.resizeWindow("Realtime") #type: ignore
-        if cv.waitKey(0) == ord("q"):
             break
+        if not frame_queue.full():
+            frame_queue.put(frame)
+        try:
+            frame = modules.insert_food_regions_detected(frame, yolo_results_global[0])
+        except Exception:
+            pass
+
+        # Display the frame
+        height, width, _ = frame.shape
+        cv.resizeWindow(window_name, width, height)
+        cv.imshow(window_name, frame)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+
     cap.release()
     cv.destroyAllWindows()
+
+    detection_thread.join()
 
 
 def main() -> int:
