@@ -35,7 +35,7 @@ def app():
         # TODO escolher o tamanho da janela
         # TODO deixar a janela no centro da tela
         # cv.resizeWindow("Realtime") #type: ignore
-        if cv.waitKey(0) == ord("q"):
+        if cv.waitKey(1) == ord("q"):
             break
     cap.release()
     cv.destroyAllWindows()
