@@ -18,11 +18,14 @@ def get_yolo_detection_results(frame, models_dir):
         raise RuntimeError("no plate boxes returned")
     f_cls_and_bboxes = [(f_results.names[int(cls)], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
 
-    plate_model = YOLO(build_path(models_dir,'plate.pt'))
-    p_results = plate_model.predict([frame])[0]
+    plate_model = YOLO(build_path(models_dir,'plate.pt'))    
+    p_results = plate_model.predict([frame])[0]            
     if not isinstance(p_results.boxes, Boxes):
         raise RuntimeError("no food boxes returned")
-    p_cls_and_bbox = ["prato", list(map(int, p_results.boxes.xyxy[0]))]
+    try:
+        p_cls_and_bbox = ["prato", list(map(int, p_results.boxes.xyxy[0]))]
+    except:
+        return [["prato", [-1, -1, -1, -1]], f_cls_and_bboxes]
 
     return [p_cls_and_bbox, f_cls_and_bboxes]
 
@@ -61,7 +64,10 @@ def insert_food_regions_detected(frame, yolov8_results):
 
     # Desenhar prato
     name, bounding_box = p_result[0], p_result[1]
-    draw_bbox_and_label(frame, name, bounding_box, bbox_color=(0, 0, 0), text_color=(255, 255, 255), paint_inside=True, paint_alfa=0.15, paint_color=(0, 0, 0))
+    if p_result[1][0] != -1:
+        draw_bbox_and_label(frame, name, bounding_box, bbox_color=(0, 0, 0), text_color=(255, 255, 255), paint_inside=True, paint_alfa=0.15, paint_color=(0, 0, 0))
+    else:
+        __insert_title_to_frame(frame, "OBS: Nenhum prato detectado")
 
     return frame
 
@@ -70,6 +76,9 @@ def build_path(*paths):
 
 def show_metrics_analisys(yolov8_results):
     p_result, f_results = yolov8_results[0], yolov8_results[1]
+    if p_result[1][0] == -1:
+        print("Nenhum prato detectado, análise nutricional não será realizada.")
+        return
     resp = __healthy_analisys(p_result, f_results)
 
     percentages = resp.values()
@@ -84,8 +93,14 @@ def __insert_title_to_frame(frame, text):
     (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
     height, width = frame.shape[:2]
     x = (width - text_width) // 2 # centralizado
-    y = int(0.075 * height) # 7.5% da altura
-    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness)
+    y = int(0.075 * height) # 7.5% da altura  
+    
+    rect_start_point = (x - 5, y - text_height - 5)
+    rect_end_point = (x + text_width + 45, y + baseline - 5)
+    
+    cv.rectangle(frame, rect_start_point, rect_end_point, (0, 0, 0), cv.FILLED)
+
+    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness, cv.LINE_AA)        
     return
 
 def __get_screen_resolution():
