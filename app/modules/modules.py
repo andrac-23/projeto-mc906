@@ -25,31 +25,42 @@ def get_yolo_detection_results(frame, models_dir):
 
     return [p_cls_and_bbox, f_cls_and_bboxes]
 
+def draw_bbox_and_label(frame, name, bbox, bbox_color=(0, 255, 0), text_color=(0, 0, 0), paint_inside=False, paint_alfa=0.15, paint_color=(0, 255, 0)):
+    """ Credits to: https://github.com/shoumikchow/bbox-visualizer/ """
+
+    # Drawing the bounding box
+    thickness = 2
+    x_min, y_min, x_max, y_max = bbox
+    cv.rectangle(frame, (x_min, y_min), (x_max, y_max), bbox_color, thickness)
+    if paint_inside:
+        copy = frame.copy()
+        cv.rectangle(copy, (x_min, y_min), (x_max, y_max), paint_color, cv.FILLED)
+        cv.addWeighted(copy, paint_alfa, frame, 1-paint_alfa, 0, frame)
+
+    # Drawing the label
+    font = cv.FONT_HERSHEY_SIMPLEX
+    thickness = 1
+    size = 0.86 # @TODO: make it dynamic based on the size of the bounding box    
+    background_color = bbox_color
+    (text_width, text_height), baseline = cv.getTextSize(name, font, size, thickness)
+    # Background of the label
+    rec_coordinates = [int(0.999*x_min), int(1*y_min), x_min + text_width, y_min - text_height - int((10 * size))]
+    cv.rectangle(frame, (rec_coordinates[0], rec_coordinates[1]), (rec_coordinates[2] + 5, rec_coordinates[3]), background_color, cv.FILLED)
+    # Put the text on top of the bounding box
+    cv.putText(frame, name, (x_min, y_min - int(5.5 * size)), font, size, text_color, thickness, cv.LINE_AA)
+    cv.putText(frame, name, (x_min, y_min - 1 - int(5.5 * size)), font, size, text_color, thickness, cv.LINE_AA) # workaround for custom thickness
+
 def insert_food_regions_detected(frame, yolov8_results):
     p_result, f_results = yolov8_results[0], yolov8_results[1]
 
-    font_scale_f = 0.5
+    # Desenhar alimentos
     for item in f_results:
-        name = item[0]
-        xmin, ymin, xmax, ymax = item[1][0], item[1][1], item[1][2], item[1][3]
+        name, bounding_box = item[0], item[1]
+        draw_bbox_and_label(frame, name, bounding_box)
 
-        cv.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-
-        text_x = xmin
-        text_y = ymin - 10
-        text_y = max(text_y, 10)
-        cv.putText(frame, name, (text_x, text_y), cv.FONT_HERSHEY_SIMPLEX, font_scale_f, (255, 0, 0), 1)
-
-
-    name = p_result[0]
-    xmin, ymin, xmax, ymax = p_result[1][0], p_result[1][1], p_result[1][2], p_result[1][3]
-
-    cv.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 0, 0), 2)
-
-    text_x = xmin
-    text_y = ymin - 10
-    text_y = max(text_y, 10)
-    cv.putText(frame, name, (text_x, text_y), cv.FONT_HERSHEY_SIMPLEX, font_scale_f, (0, 0, 0), 1)
+    # Desenhar prato
+    name, bounding_box = p_result[0], p_result[1]
+    draw_bbox_and_label(frame, name, bounding_box, bbox_color=(0, 0, 0), text_color=(255, 255, 255), paint_inside=True, paint_alfa=0.15, paint_color=(0, 0, 0))
 
     return frame
 
