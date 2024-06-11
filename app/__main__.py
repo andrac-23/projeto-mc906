@@ -1,18 +1,26 @@
-from argparse import ArgumentParser
-import cv2 as cv
 import os
-from app.lib import modules
+from argparse import ArgumentParser
 from pathlib import Path
+
+import cv2 as cv
+
+from app.lib import modules
+
 
 def image_aux(models: Path | str, image_path: Path | str,) -> None:
     frame = cv.imread(image_path)
-
     yolo_results = modules.get_yolo_detection_results(frame, models)
-    frame = modules.insert_food_regions_detected(frame, yolo_results)
+
+    _, width, _ = frame.shape
+    top, bottom, left, right = 0, 0, 0, int(.2 * width)
+    # print(f'{(height, width)=}')
+    padded_image = cv.copyMakeBorder(frame, top, bottom, left, right, cv.BORDER_CONSTANT, value=[255, 255, 255])
+    frame = modules.insert_food_regions_detected(padded_image, yolo_results)
 
     window_name = "App - Image Version"
     cv.namedWindow(window_name, cv.WINDOW_NORMAL)
-    cv.resizeWindow(window_name, 800, 600)
+    height, width, _ = frame.shape
+    cv.resizeWindow(window_name, width, height)
     cv.imshow(window_name, frame)
     # move_window_to_center("Realtime", *frame.shape[:2][::-1])
 

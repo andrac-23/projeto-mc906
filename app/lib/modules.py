@@ -145,8 +145,8 @@ def insert_food_regions_detected(frame, yolov8_results: Results):
 
     # texto na base do retangulo
     text = "{:.2f}".format(percentual_healthy)
-    font_scale = 1
-    font_thickness = 1
+    font_scale = frame_width / 1000
+    font_thickness = 2
     (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
     x = top_left_point[0] + (rect_width - text_width) // 2
     y = bottom_right_point[1] - text_height - 50
