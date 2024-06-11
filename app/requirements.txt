@@ -1,3 +1,8 @@
 ultralytics
 opencv-python
 python-dotenv
+bbox-visualizer
+numpy
+matplotlib
+googletrans==3.1.0a0
+google-generativeai

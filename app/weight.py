@@ -3,9 +3,9 @@ from ultralytics.engine.results import Results, Boxes
 import numpy as np
 
 # Paths
-path_weights_food = "best_food.pt"
-path_weights_plate = "best_plate.pt"
-path_img = "oi.jpeg"
+path_weights_food = "/Users/gustavo/Documents/Studies/Unicamp/S8/mc906/projeto-mc906/models/final/food.pt"
+path_weights_plate = "/Users/gustavo/Documents/Studies/Unicamp/S8/mc906/projeto-mc906/models/final/plate.pt"
+path_img = "/Users/gustavo/Documents/Studies/Unicamp/S8/mc906/projeto-mc906/app/main/image_version/images/bandeco.jpg"
 
 # Load density map (kg/m^3)
 density_map = {
@@ -113,8 +113,8 @@ if not isinstance(result_food.boxes, Boxes):
 
 # TODO: ask the user for these values
 # IDEA: one value for shallow, medium and deep plates
-plate_h = 0.1
-plate_d = 0.24
+plate_h = 1e-2
+plate_d = 30e-2
 
 # get pixels to meters conversion rate
 _x, _y, w, h = result_plate.boxes[0].xywh[0].tolist()  # assuming one plate
@@ -122,11 +122,12 @@ plate_d_pixels = (w + h) / 2
 meters_per_pixel = plate_d / plate_d_pixels
 
 # Process results list
+print("Detected:")
 for food_box in result_food.boxes:
-    cl = int(food_box.cls[0].tolist()[0])
+    cl = int(food_box.cls[0].tolist())
     _x, _y, w, h = food_box.xywh[0].tolist()
-    area = meters_per_pixel * np.pi * w * h / 4  # ellipse (m^2)
+    area = meters_per_pixel**2 * np.pi * w * h / 4  # ellipse (m^2)
     volume = plate_h * area  # m^3
     density = density_map[categories[cl]]  # kg/m^3
-    weight = density * volume  # kg
-    print(f"Detected {weight} kg of {categories[cl]}")
+    weight = density * volume * 1000  # g
+    print(f"  * {weight:.1f} g of {categories[cl]}")
