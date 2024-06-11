@@ -8,6 +8,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+food_cache = dict()
 
 def get_yolo_detection_results(frame, models_dir):
     print("Realizando detecção de objetos na imagem atual...")
@@ -102,7 +103,7 @@ def __move_window_to_center(window_name, width, height):
     cv.moveWindow(window_name, x, y)
     return
 
-def __get_food_on_api(food_name):
+def __get_food_on_api(food_name):    
     root_dir = os.path.abspath(build_path(os.path.dirname(__file__), '..', '..'))
     load_dotenv(build_path(root_dir, '.env'))
 
@@ -118,9 +119,15 @@ def __get_food_on_api(food_name):
         'sortOrder': 'asc',
         'api_key': api_key
     }
-    response = requests.get(api_url, params=params)
+
+    if food_name in food_cache:
+        # print(f"Cache hit: {food_name}")
+        return food_cache[food_name]    
+
+    response = requests.get(api_url, params=params)    
 
     if response.status_code == 200:
+        food_cache[food_name] = response.json()["foods"][0]
         return response.json()["foods"][0]
     else:
         raise Exception(f"Erro na requisição: {response.status_code}")
