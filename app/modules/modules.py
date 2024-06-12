@@ -18,8 +18,8 @@ def get_yolo_detection_results(frame, models_dir):
         raise RuntimeError("no plate boxes returned")
     f_cls_and_bboxes = [(f_results.names[int(cls)], list(map(int, bbox))) for cls, bbox in zip(f_results.boxes.cls, f_results.boxes.xyxy)]
 
-    plate_model = YOLO(build_path(models_dir,'plate.pt'))    
-    p_results = plate_model.predict([frame])[0]            
+    plate_model = YOLO(build_path(models_dir,'plate.pt'))
+    p_results = plate_model.predict([frame])[0]
     if not isinstance(p_results.boxes, Boxes):
         raise RuntimeError("no food boxes returned")
     try:
@@ -44,7 +44,7 @@ def draw_bbox_and_label(frame, name, bbox, bbox_color=(0, 255, 0), text_color=(0
     # Drawing the label
     font = cv.FONT_HERSHEY_SIMPLEX
     thickness = 1
-    size = 0.86 # @TODO: make it dynamic based on the size of the bounding box    
+    size = 0.86 # @TODO: make it dynamic based on the size of the bounding box
     background_color = bbox_color
     (text_width, text_height), baseline = cv.getTextSize(name, font, size, thickness)
     # Background of the label
@@ -74,33 +74,33 @@ def insert_food_regions_detected(frame, yolov8_results):
 def build_path(*paths):
     return os.path.join(*paths)
 
-def show_metrics_analisys(yolov8_results):
+def show_metrics_analisys(yolov8_results) -> dict:
     p_result, f_results = yolov8_results[0], yolov8_results[1]
     if p_result[1][0] == -1:
         print("Nenhum prato detectado, análise nutricional não será realizada.")
-        return
+        return {'score':0}
     resp = __healthy_analisys(p_result, f_results)
-
+    return resp
     percentages = resp.values()
     labels = resp.keys()
 
-    __plot_metrics(percentages, labels)
-    # return __draw_metrics(percentages, labels)
-    
+    # __plot_metrics(percentages, labels)
+    return __draw_metrics(percentages, labels)
+
 def __insert_title_to_frame(frame, text):
     font_scale = 1
     font_thickness = 2
     (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
     height, width = frame.shape[:2]
     x = (width - text_width) // 2 # centralizado
-    y = int(0.075 * height) # 7.5% da altura  
-    
+    y = int(0.075 * height) # 7.5% da altura
+
     rect_start_point = (x - 5, y - text_height - 5)
     rect_end_point = (x + text_width + 45, y + baseline - 5)
-    
+
     cv.rectangle(frame, rect_start_point, rect_end_point, (0, 0, 0), cv.FILLED)
 
-    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness, cv.LINE_AA)        
+    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_COMPLEX, font_scale, (255,255,255), font_thickness, cv.LINE_AA)
     return
 
 def __get_screen_resolution():
@@ -118,7 +118,7 @@ def __move_window_to_center(window_name, width, height):
     cv.moveWindow(window_name, x, y)
     return
 
-def __get_food_on_api(food_name):    
+def __get_food_on_api(food_name):
     root_dir = os.path.abspath(build_path(os.path.dirname(__file__), '..', '..'))
     load_dotenv(build_path(root_dir, '.env'))
 
@@ -137,9 +137,9 @@ def __get_food_on_api(food_name):
 
     if food_name in food_cache:
         # print(f"Cache hit: {food_name}")
-        return food_cache[food_name]    
+        return food_cache[food_name]
 
-    response = requests.get(api_url, params=params)    
+    response = requests.get(api_url, params=params)
 
     if response.status_code == 200:
         food_cache[food_name] = response.json()["foods"][0]
@@ -224,7 +224,7 @@ def __healthy_analisys(p_result, f_results) -> dict:
     # relative_sum_carbs = relative_sum_carbs if relative_sum_carbs <= 0.25 else 0.25
     # relative_sum_veg = relative_sum_veg if relative_sum_veg <= 0.5 else 0.5
 
-    average_health = (relative_sum_proteins/0.25 + relative_sum_carbs/0.25 + relative_sum_veg/0.5)/3
+    average_health = min(1, (relative_sum_proteins/0.25 + relative_sum_carbs/0.25 + relative_sum_veg/0.5)/3)
     print("Score: {:.2f} % saudável".format(average_health*100))
     print("Proteínas: {:.2f} % da refeição".format(relative_sum_proteins*100))
     print("Carboidratos: {:.2f} % da refeição".format(relative_sum_carbs*100))
@@ -252,7 +252,7 @@ def __plot_metrics(percentages, labels):
 
     # Adicionar valores nas barras
     for bar, percent in zip(bars, percentages_scaled):
-        plt.text(bar.get_width(), bar.get_y() + bar.get_height()/2, f'{percent}%', 
+        plt.text(bar.get_width(), bar.get_y() + bar.get_height()/2, f'{percent}%',
                 va='center', ha='left', color='black', fontsize=10)
 
     # Inverter a ordem das métricas
@@ -288,22 +288,23 @@ def __draw_metrics(percentages, labels):
     for i, (percent, label) in enumerate(zip(percentages, labels)):
         # Calcular o comprimento da barra com base na porcentagem
         bar_length = int(inner_width * percent)
-        
+
         # Calcular a posição vertical da barra
         y = margin_y + i * (bar_height + label_height)
-        
+
         # Desenhar o retângulo interno (preenchimento)
         cv.rectangle(image, (margin_x, y), (margin_x + bar_length, y + bar_height), (255, 0, 0), -1)  # Azul
 
         # Desenhar o retângulo externo
         cv.rectangle(image, (margin_x, y), (width - margin_x, y + bar_height), (0, 0, 0), 2)
-        
+
         # Adicionar rótulo acima da barra
         cv.putText(image, label, (margin_x, y - label_margin), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
 
+
     return image
 
-def __insert_vertical_bar_healthy_score(frame, yolov8_results):
+def insert_vertical_bar_healthy_score(frame, porcentagem):
     #forma do retangulo
     frame_height, frame_width = frame.shape[:2]
     top_left_point = (int(0.87 * frame_width), int(0.075 * frame_height))
@@ -312,25 +313,46 @@ def __insert_vertical_bar_healthy_score(frame, yolov8_results):
     rect_width = bottom_right_point[0] - top_left_point[0]
     rect_height = bottom_right_point[1] - top_left_point[1]
 
-    p_result, f_results = yolov8_results[0], yolov8_results[1]
-    resp = __healthy_analisys(p_result, f_results)
+    # p_result, f_results = yolov8_results[0], yolov8_results[1]
+    #resp = __healthy_analisys(p_result, f_results)
 
     # preencher retangulo
-    fill_percentage = resp["score"]
+    # fill_percentage = resp["score"]
+    fill_percentage = porcentagem
     fill_height = int(rect_height * fill_percentage)
-
+    rec_thickness = 2
     # Define the filled rectangle parameters starting from the base
-    fill_start_point = (top_left_point[0], bottom_right_point[1] - fill_height)
-    fill_end_point = bottom_right_point
-    cv.rectangle(frame, fill_start_point, fill_end_point, (52, 57, 244), cv.FILLED)
+    fill_start_point = (top_left_point[0] + rec_thickness, bottom_right_point[1] - fill_height + rec_thickness)
+    fill_end_point = (bottom_right_point[0] - rec_thickness, bottom_right_point[1] - rec_thickness)
+    red = int(255 * (100 - porcentagem * 100) / 100)
+    green = int(255 * porcentagem)
+    if porcentagem < 0.50:
+        red = 235
+        green = int(255 * (porcentagem / 2))
+    else:
+        green = 235
+        red = int(255 * ((100 - (porcentagem * 100)) / 50))
+    color = (0, green, red)
+    cv.rectangle(frame, fill_start_point, fill_end_point, color, cv.FILLED)
 
     # texto na base do retangulo
-    text = "{:.2f}".format(percentual_healthy)
-    font_scale = 1
-    font_thickness = 1
+    # text = "{:.2f}".format(percentual_healthy)
+    text = "{}%".format(int(fill_percentage * 100))
+    font_scale = 0.8
+    font_thickness = 2
     (text_width, text_height), baseline = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
     x = top_left_point[0] + (rect_width - text_width) // 2
     y = bottom_right_point[1] - text_height - 50
-    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+    cv.putText(frame, text, (x, y), cv.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), font_thickness)
 
-    cv.rectangle(frame, top_left_point, bottom_right_point, (8, 184, 27), 2)
+    cv.rectangle(frame, top_left_point, bottom_right_point, (0, 0, 0), rec_thickness)
+
+if __name__ == "__main__":
+    # create white 400x400 image
+    image = np.ones((700, 700, 3), dtype=np.uint8) * 255
+    curr = 0.0
+    for i in range(11):
+        # __insert_vertical_bar_healthy_score(image, [["prato", [0, 0, 400, 400]], ["vegetables", [0, 0, 200, 200]]], curr)
+        cv.imshow("Healthy Score", image)
+        cv.waitKey(0)
+        curr += 0.1
