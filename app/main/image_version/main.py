@@ -23,7 +23,12 @@ def app():
         cv.resizeWindow(window_app, 800, 600)
         cv.imshow(window_app, frame)
 
-        modules.show_metrics_analisys(yolo_results)
+        results = modules.show_metrics_analisys(yolo_results)
+        results.pop("score") # apagar "score"
+        percentages = results.values()
+        labels = results.keys()
+        modules.plot_metrics(percentages, labels)
+
         # window_metrics = "Metrics"
         # cv.namedWindow(window_metrics, cv.WINDOW_NORMAL)
         # cv.resizeWindow(window_metrics, 800, 600)

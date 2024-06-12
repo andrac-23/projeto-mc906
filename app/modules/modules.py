@@ -240,7 +240,7 @@ def __healthy_analisys(p_result, f_results) -> dict:
     }
     return dict_resp
 
-def __plot_metrics(percentages, labels):
+def plot_metrics(percentages, labels):
     # Porcentagens de cada métrica
     percentages_scaled = [p * 100 for p in percentages]
 
@@ -252,7 +252,7 @@ def __plot_metrics(percentages, labels):
 
     # Adicionar valores nas barras
     for bar, percent in zip(bars, percentages_scaled):
-        plt.text(bar.get_width(), bar.get_y() + bar.get_height()/2, f'{percent}%',
+        plt.text(bar.get_width(), bar.get_y() + bar.get_height()/2, f'{percent:.2f}%',
                 va='center', ha='left', color='black', fontsize=10)
 
     # Inverter a ordem das métricas
